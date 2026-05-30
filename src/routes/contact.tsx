@@ -8,12 +8,15 @@ import { useCart } from "@/hooks/use-cart";
 const ORDER_EMAIL = "bakedbyjojo124@gmail.com";
 
 // Web3Forms delivers each submitted order straight to ORDER_EMAIL's inbox —
-// no customer mail app required. Create a free key (30 sec, no account) at
-// https://web3forms.com by entering bakedbyjojo124@gmail.com, then set it in a
-// .env file as VITE_WEB3FORMS_ACCESS_KEY. Until then, the form falls back to
-// opening the customer's mail client. The key is meant to be used in the
-// browser, so it's safe to expose here.
-const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY ?? "";
+// no customer mail app required, fully automatic. The key below is created for
+// bakedbyjojo124@gmail.com at https://web3forms.com and is meant to be used in
+// the browser, so it's safe to ship in the client bundle. It's hardcoded as the
+// default (rather than only read from .env) so the deployed build always has it
+// — .env is gitignored and never reaches the Netlify build. Set
+// VITE_WEB3FORMS_ACCESS_KEY in a .env file to override it locally if needed.
+const DEFAULT_WEB3FORMS_ACCESS_KEY = "1a083688-5e7b-4b24-9ef5-0db4927dc4b0";
+const WEB3FORMS_ACCESS_KEY =
+  import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || DEFAULT_WEB3FORMS_ACCESS_KEY;
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
