@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import joann from "@/assets/joannportrait.jpg";
+import joann from "@/assets/joannportrait.webp";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -34,14 +34,11 @@ function AboutPage() {
             Three generations of cookie love.
           </h1>
           <p className="text-lg text-muted-foreground">
-            I've been baking since I could reach the counter. My grandmother taught my mother,
-            my mother taught me, and now I'm sharing those recipes with my town, my county, and
-            anywhere across the state I can ship a fresh box.
-          </p>
-          <p className="text-lg text-muted-foreground">
-            Every cookie that leaves my kitchen is made the same way: real butter, pure vanilla,
-            and the patience to do it right. No shortcuts, no preservatives — just the kind of
-            cookies you remember.
+            Baked By JoJo was born from Joann's love of baking delicious treats for friends and
+            family. For years, her cookies have been the highlight of special occasions, bringing
+            joy to gatherings and celebrations alike. Inspired by her passion for creating
+            fan-favorite baked goods and helping people celebrate life's sweetest memories, Joann
+            decided to share her scrumptious creations with others.
           </p>
         </div>
       </div>

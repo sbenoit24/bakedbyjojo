@@ -30,3 +30,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local env (Web3Forms key, etc.)
+.env
+.env.local

@@ -1,15 +1,17 @@
-import chocolateChip from "@/assets/choconut.jpg";
-import sugar from "@/assets/almond.jpg";
-import oatmeal from "@/assets/oatmealraisin.jpg";
-import snickerdoodle from "@/assets/graham.jpg";
-import peanutButter from "@/assets/mintymocha.jpg";
-import doubleChocolate from "@/assets/figgies.jpg";
+import chocolateChip from "@/assets/choconut.webp";
+import sugar from "@/assets/almond.webp";
+import oatmeal from "@/assets/oatmealraisin.webp";
+import snickerdoodle from "@/assets/graham.webp";
+import peanutButter from "@/assets/mintymocha.webp";
+import doubleChocolate from "@/assets/figgies.webp";
 
 export type Cookie = {
   slug: string;
   name: string;
   tagline: string;
   description: string;
+  ingredients: string;
+  allergens: string;
   price: number;
   image: string;
   badge?: string;
@@ -18,21 +20,27 @@ export type Cookie = {
 export const cookies: Cookie[] = [
   {
     slug: "classic-chocolate-chip",
-    name: "Classic Chocolate Chip",
+    name: "ChocoNut Craze",
     tagline: "The one that started it all",
     description:
       "Brown butter, Madagascar vanilla, and pools of semi-sweet chocolate. Crisp edges, gooey center.",
-    price: 24,
+    ingredients:
+      "Butter, Nutella, sugar, brown sugar, eggs, vanilla extract, flour, baking soda, hazelnuts, semi-sweet chocolate chips.",
+    allergens: "Contains: tree nuts (hazelnuts), wheat, eggs, dairy, soy.",
+    price: 13,
     image: chocolateChip,
     badge: "Bestseller",
   },
   {
     slug: "frosted-sugar",
-    name: "Frosted Sugar Cookies",
+    name: "Almond Confetti Cookie",
     tagline: "A little party in every bite",
     description:
       "Tender, buttery sugar cookies hand-finished with vanilla bean royal icing. Perfect for celebrations.",
-    price: 28,
+    ingredients:
+      "Cookie: flour, sugar, whole milk, eggs, baking powder, vegetable oil, almond extract. Glaze: powdered sugar, almond extract, water, sprinkles.",
+    allergens: "Contains: wheat/gluten, dairy, eggs, and tree nuts (almonds).",
+    price: 13,
     image: sugar,
   },
   {
@@ -41,34 +49,46 @@ export const cookies: Cookie[] = [
     tagline: "Grandma-approved",
     description:
       "Hearty rolled oats, plump raisins, a whisper of cinnamon. Chewy, wholesome, irresistible.",
-    price: 22,
+    ingredients:
+      "Butter, granulated sugar, brown sugar, eggs, vanilla extract, flour, baking soda, oatmeal, raisins, cinnamon.",
+    allergens: "Contains: wheat, eggs, dairy.",
+    price: 13,
     image: oatmeal,
   },
   {
     slug: "snickerdoodle",
-    name: "Cinnamon Snickerdoodle",
+    name: "CinnaGraham Chipsters",
     tagline: "Cozy in cookie form",
     description:
       "Rolled in cinnamon sugar, baked until pillowy. Tastes like a sweater and a fireplace.",
-    price: 22,
+    ingredients:
+      "Butter, sugar, honey, brown sugar, eggs, vanilla extract, flour, baking soda, cinnamon, graham cracker crumbs, semi-sweet chocolate chips.",
+    allergens: "Contains: wheat, eggs, dairy, soy, and honey.",
+    price: 13,
     image: snickerdoodle,
   },
   {
     slug: "peanut-butter",
-    name: "Peanut Butter",
+    name: "Minty Mocha Chipsters",
     tagline: "Crisscrossed and classic",
     description:
       "Rich roasted peanut butter and a touch of brown sugar. Iconic fork pattern, melt-in-your-mouth texture.",
-    price: 24,
+    ingredients:
+      "Butter, sugar, dark brown sugar, eggs, vanilla extract, peppermint extract, flour, cocoa powder, baking soda, espresso powder, semi-sweet chocolate chips, crushed peppermint candies.",
+    allergens: "Contains: wheat, eggs, dairy, soy. May contain traces of tree nuts.",
+    price: 13,
     image: peanutButter,
   },
   {
     slug: "double-chocolate",
-    name: "Double Chocolate",
+    name: "Figgie's Favorites (Brownie P.B. Chip)",
     tagline: "For the serious chocoholic",
     description:
       "Dutch cocoa dough loaded with dark chocolate chunks. Fudgy, decadent, unapologetic.",
-    price: 26,
+    ingredients:
+      "Sugar, wheat flour, cocoa powder, semi-sweet, bittersweet, peanut butter & milk chocolate chips, butter, whole milk, eggs, vanilla extract, baking soda, and a pinch of salt.",
+    allergens: "Contains: wheat, dairy, eggs, soy, and peanuts. May contain tree nuts.",
+    price: 13,
     image: doubleChocolate,
     badge: "Fan favorite",
   },

@@ -1,6 +1,19 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Mail, Phone, MapPin, Minus, Plus, X } from "lucide-react";
 import { useState } from "react";
+import { cookies } from "@/data/cookies";
+import { useCart } from "@/hooks/use-cart";
+
+// Where placed orders are sent.
+const ORDER_EMAIL = "bakedbyjojo124@gmail.com";
+
+// Web3Forms delivers each submitted order straight to ORDER_EMAIL's inbox —
+// no customer mail app required. Create a free key (30 sec, no account) at
+// https://web3forms.com by entering bakedbyjojo124@gmail.com, then set it in a
+// .env file as VITE_WEB3FORMS_ACCESS_KEY. Until then, the form falls back to
+// opening the customer's mail client. The key is meant to be used in the
+// browser, so it's safe to expose here.
+const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY ?? "";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -15,7 +28,113 @@ export const Route = createFileRoute("/contact")({
 });
 
 function ContactPage() {
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const sent = status === "sent";
+  const {
+    cookieItems,
+    platters,
+    addDozen,
+    setDozens,
+    removeItem,
+    setPlatterDozens,
+    removePlatterItem,
+    clear,
+    cookieDozens,
+    totalDozens,
+  } = useCart();
+
+  const toLines = (items: typeof cookieItems) =>
+    cookies
+      .filter((c) => (items[c.slug] ?? 0) > 0)
+      .map((c) => ({ ...c, dozens: items[c.slug] }));
+
+  const cookieLines = toLines(cookieItems);
+  // Keep each platter as its own group, remembering its index so edits target
+  // the right platter in the cart.
+  const platterGroups = platters
+    .map((items, index) => ({ index, lines: toLines(items), items }))
+    .filter((g) => g.lines.length > 0);
+  const hasOrder = cookieLines.length > 0 || platterGroups.length > 0;
+  const totalPrice =
+    cookieLines.reduce((sum, c) => sum + c.price * c.dozens, 0) +
+    platterGroups.reduce(
+      (sum, g) => sum + g.lines.reduce((s, c) => s + c.price * c.dozens, 0),
+      0,
+    );
+
+  // Compose the order as a plain-text summary and deliver it to the bakery
+  // inbox. We build the body before clearing the cart so the just-submitted
+  // order isn't lost.
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const customerName = (form.get("name") as string) || "a customer";
+
+    const body: string[] = [];
+    const renderLines = (lines: OrderLine[]) =>
+      lines.forEach((c) =>
+        body.push(`  ${c.dozens} dozen ${c.name} — $${c.price * c.dozens}`),
+      );
+
+    if (cookieLines.length > 0) {
+      body.push("Cookie order:");
+      renderLines(cookieLines);
+      body.push("");
+    }
+    platterGroups.forEach((g, position) => {
+      body.push(platterGroups.length > 1 ? `Platter ${position + 1}:` : "Platter order:");
+      renderLines(g.lines);
+      body.push("");
+    });
+    body.push(`Total: ${totalDozens} ${totalDozens === 1 ? "dozen" : "dozens"} — $${totalPrice}`);
+    body.push("");
+    body.push(`Name: ${customerName}`);
+    body.push(`Email: ${form.get("email") || "—"}`);
+    body.push(`Phone: ${form.get("phone") || "—"}`);
+    body.push(`Needed by: ${form.get("date") || "—"}`);
+    body.push(`Fulfillment: ${form.get("fulfillment") || "—"}`);
+
+    const subject = `New cookie order from ${customerName}`;
+    const message = body.join("\n");
+
+    // No delivery key configured yet — fall back to opening the customer's
+    // mail client so orders are never silently dropped.
+    if (!WEB3FORMS_ACCESS_KEY) {
+      window.location.href = `mailto:${ORDER_EMAIL}?subject=${encodeURIComponent(
+        subject,
+      )}&body=${encodeURIComponent(message)}`;
+      setStatus("sent");
+      clear();
+      return;
+    }
+
+    setStatus("sending");
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          subject,
+          from_name: customerName,
+          // Lets Joann reply straight to the customer from the order email.
+          replyto: (form.get("email") as string) || undefined,
+          name: customerName,
+          email: form.get("email"),
+          phone: form.get("phone"),
+          needed_by: form.get("date"),
+          fulfillment: form.get("fulfillment"),
+          message,
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message ?? "Submission failed");
+      setStatus("sent");
+      clear();
+    } catch {
+      setStatus("error");
+    }
+  };
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-16 md:py-24">
@@ -32,9 +151,57 @@ function ContactPage() {
       <div className="mt-14 grid gap-10 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <form
-            onSubmit={(e) => { e.preventDefault(); setSent(true); }}
+            onSubmit={handleSubmit}
             className="rounded-3xl bg-card border border-border p-8 md:p-10 shadow-soft space-y-5"
           >
+            <div>
+              <label className="block text-sm font-medium text-primary mb-2">Your order</label>
+              {!hasOrder ? (
+                <div className="rounded-xl border border-dashed border-border bg-background px-4 py-6 text-center text-sm text-muted-foreground">
+                  Your cart is empty.{" "}
+                  <Link to="/cookies" className="font-medium text-accent hover:underline">
+                    Browse the cookies
+                  </Link>{" "}
+                  and add a dozen to get started.
+                </div>
+              ) : (
+                <div className="space-y-5">
+                  {cookieLines.length > 0 && (
+                    <OrderSection
+                      title="Cookie order"
+                      subtitle="Sold by the dozen"
+                      lines={cookieLines}
+                      onDecrement={(slug, dozens) => setDozens(slug, dozens - 1)}
+                      onIncrement={(slug) => addDozen(slug)}
+                      onRemove={removeItem}
+                      sectionDozens={cookieDozens}
+                    />
+                  )}
+                  {platterGroups.map((g, position) => (
+                    <OrderSection
+                      key={g.index}
+                      title={platterGroups.length > 1 ? `Platter ${position + 1}` : "Platter order"}
+                      subtitle="2 dozen minimum, mix & match"
+                      lines={g.lines}
+                      onDecrement={(slug, dozens) => setPlatterDozens(g.index, slug, dozens - 1)}
+                      onIncrement={(slug) => setPlatterDozens(g.index, slug, (g.items[slug] ?? 0) + 1)}
+                      onRemove={(slug) => removePlatterItem(g.index, slug)}
+                      sectionDozens={g.lines.reduce((sum, l) => sum + l.dozens, 0)}
+                    />
+                  ))}
+                  <div className="space-y-1 px-1 text-sm font-semibold text-primary">
+                    <div className="flex items-center justify-between">
+                      <span>Total cookies</span>
+                      <span>{totalDozens} {totalDozens === 1 ? "dozen" : "dozens"}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Total price</span>
+                      <span>${totalPrice}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="grid gap-5 sm:grid-cols-2">
               <Field label="Your name" name="name" required />
               <Field label="Email" name="email" type="email" required />
@@ -44,42 +211,134 @@ function ContactPage() {
               <Field label="Needed by" name="date" type="date" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-primary mb-2">Cookie order</label>
-              <textarea
-                name="order"
-                rows={5}
-                placeholder="e.g. 2 dozen chocolate chip, 1 dozen frosted sugar — for a birthday Saturday."
-                className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-                required
-              />
-            </div>
-            <div>
               <label className="block text-sm font-medium text-primary mb-2">Pickup, delivery, or shipping?</label>
               <select
                 name="fulfillment"
                 className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
               >
-                <option>Local pickup</option>
-                <option>Local delivery (within county)</option>
-                <option>Ship anywhere in the state</option>
+                <option>Local pickup (Cookies and Platters)</option>
+                <option>Ship anywhere in the state (Cookies Only no Platter)</option>
               </select>
             </div>
             <button
               type="submit"
-              className="w-full rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-warm hover:translate-y-[-1px] transition-all"
+              disabled={(!hasOrder && !sent) || status === "sending"}
+              className="w-full rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-warm hover:translate-y-[-1px] transition-all disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
             >
-              {sent ? "Thanks! Joann will be in touch soon." : "Send my order"}
+              {status === "sending"
+                ? "Sending your order…"
+                : sent
+                  ? "Thanks! Joann will be in touch soon."
+                  : "Send my order"}
             </button>
+            {status === "error" && (
+              <p className="text-center text-sm text-destructive">
+                Something went wrong sending your order. Please try again, or email us at{" "}
+                <a href={`mailto:${ORDER_EMAIL}`} className="font-medium underline">
+                  {ORDER_EMAIL}
+                </a>
+                .
+              </p>
+            )}
+            <div className="flex justify-center">
+              <a
+                href="https://venmo.com/u/Joann-Sachs-4"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm font-medium text-primary hover:bg-secondary/70 transition-colors"
+              >
+                Pay with Venmo
+                <span className="font-semibold text-accent">@Joann-Sachs-4</span>
+              </a>
+            </div>
           </form>
         </div>
 
         <aside className="lg:col-span-2 space-y-4">
-          <InfoCard icon={Mail} title="Email" body="hello@bakedbyjojo.com" />
-          <InfoCard icon={Phone} title="Phone" body="(555) 123-BAKE" />
+          <InfoCard icon={Mail} title="Email" body="bakedbyjojo124@gmail.com" />
+          <InfoCard icon={Phone} title="Phone" body="914-419-0765" />
           <InfoCard icon={MapPin} title="Service area" body="Local pickup & delivery in town and across the county. Shipping statewide." />
-          <InfoCard icon={Clock} title="Bakery hours" body="Tuesday – Saturday, 9am – 5pm" />
         </aside>
       </div>
+    </div>
+  );
+}
+
+type OrderLine = (typeof cookies)[number] & { dozens: number };
+
+function OrderSection({
+  title,
+  subtitle,
+  lines,
+  onDecrement,
+  onIncrement,
+  onRemove,
+  sectionDozens,
+}: {
+  title: string;
+  subtitle: string;
+  lines: OrderLine[];
+  onDecrement: (slug: string, dozens: number) => void;
+  onIncrement: (slug: string) => void;
+  onRemove: (slug: string) => void;
+  sectionDozens: number;
+}) {
+  return (
+    <div>
+      <div className="flex items-baseline justify-between px-1 mb-1.5">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">{title}</h3>
+        <span className="text-xs text-muted-foreground">{subtitle}</span>
+      </div>
+      <ul className="divide-y divide-border rounded-xl border border-border bg-background">
+        {lines.map((c) => (
+          <li key={c.slug} className="flex items-center gap-3 px-4 py-3">
+            <img
+              src={c.image}
+              alt={c.name}
+              width={48}
+              height={48}
+              className="h-12 w-12 shrink-0 rounded-lg object-cover"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-primary">{c.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {c.dozens} dozen · ${c.price * c.dozens}
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                aria-label={`Remove one dozen ${c.name}`}
+                onClick={() => onDecrement(c.slug, c.dozens)}
+                className="flex h-7 w-7 items-center justify-center rounded-full border border-input text-foreground hover:bg-secondary transition-colors"
+              >
+                <Minus className="h-3.5 w-3.5" />
+              </button>
+              <span className="w-6 text-center text-sm font-medium tabular-nums">{c.dozens}</span>
+              <button
+                type="button"
+                aria-label={`Add one dozen ${c.name}`}
+                onClick={() => onIncrement(c.slug)}
+                className="flex h-7 w-7 items-center justify-center rounded-full border border-input text-foreground hover:bg-secondary transition-colors"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                aria-label={`Remove ${c.name} from order`}
+                onClick={() => onRemove(c.slug)}
+                className="ml-1 flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:text-destructive transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </li>
+        ))}
+        <li className="flex items-center justify-between px-4 py-3 text-sm font-medium text-primary">
+          <span>{title} subtotal</span>
+          <span>{sectionDozens} dozen</span>
+        </li>
+      </ul>
     </div>
   );
 }

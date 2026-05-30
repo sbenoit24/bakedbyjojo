@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import heroImage from "@/assets/hero-cookies.jpg";
+import heroImage from "@/assets/hero-cookies.webp";
 import { cookies } from "@/data/cookies";
 import { ArrowRight, Heart, Truck, Sparkles } from "lucide-react";
 
@@ -31,8 +31,8 @@ function HomePage() {
               Cookies that taste<br />like <em className="italic text-accent">home</em>.
             </h1>
             <p className="text-lg text-muted-foreground max-w-md">
-              Joann Sachs bakes every cookie by hand in her kitchen — using real butter,
-              good vanilla, and family recipes passed down through generations.
+              Joann Sachs bakes every cookie by hand in her kitchen. Every cookie is made
+              using real butter, pure vanilla, and family recipes passed down through generations.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -122,11 +122,42 @@ function HomePage() {
 
       {/* Testimonials */}
       <section className="mx-auto max-w-6xl px-6 pb-20">
-        <div className="rounded-3xl bg-primary text-primary-foreground p-10 md:p-16">
-          <h2 className="font-display text-3xl md:text-4xl font-semibold max-w-2xl">
-            "Best cookies I've had since my grandma's kitchen. Joann's chocolate chip is unreal."
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <h2 className="font-display text-3xl md:text-4xl font-semibold text-primary text-center">
+            Best Kept Secrets
           </h2>
-          <p className="mt-6 text-sm text-primary-foreground/70">— Margaret L., a happy regular</p>
+          <ArrowRight className="h-7 w-7 text-accent shrink-0" />
+        </div>
+        <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory -mx-6 px-6">
+          {[
+            {
+              quote:
+                "I even put the Figgie's Favorite into a yogurt parfait yesterday, and it was better than having an ice cream sundae",
+              author: "Nelson Figueroa",
+            },
+            {
+              quote:
+                "The Peppermint Bliss cookies were the perfect amount of mint and delicious cookie that should follow every meal",
+              author: "Carol Ann Hart",
+            },
+            {
+              quote:
+                "I live and breathe these cookies, I can not get enough. All day everyday.",
+              author: "Sam",
+            },
+          ].map((t) => (
+            <figure
+              key={t.author}
+              className="snap-start shrink-0 w-[85%] sm:w-[28rem] rounded-3xl bg-primary text-primary-foreground p-8 md:p-10 flex flex-col justify-between"
+            >
+              <blockquote className="font-display text-xl md:text-2xl font-semibold leading-snug">
+                "{t.quote}"
+              </blockquote>
+              <figcaption className="mt-6 text-sm text-primary-foreground/70">
+                — {t.author}
+              </figcaption>
+            </figure>
+          ))}
         </div>
       </section>
 
@@ -140,7 +171,7 @@ function HomePage() {
             Order by the dozen for parties, gifts, weddings, or a quiet Tuesday afternoon.
           </p>
           <Link
-            to="/contact"
+            to="/cookies"
             className="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-warm hover:translate-y-[-1px] transition-all"
           >
             Place an order <ArrowRight className="h-4 w-4" />

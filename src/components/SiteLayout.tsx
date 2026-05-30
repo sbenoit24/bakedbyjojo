@@ -1,11 +1,12 @@
 import { Link, Outlet } from "@tanstack/react-router";
 import { Cookie } from "lucide-react";
+import { CartProvider } from "@/hooks/use-cart";
 
 const nav = [
   { to: "/", label: "Home" },
   { to: "/cookies", label: "Cookies" },
   { to: "/about", label: "About" },
-  { to: "/contact", label: "Order & Contact" },
+  { to: "/contact", label: "Cart" },
 ] as const;
 
 export function SiteHeader() {
@@ -61,8 +62,8 @@ export function SiteFooter() {
         <div>
           <h4 className="text-sm font-semibold text-primary">Get in touch</h4>
           <p className="mt-3 text-sm text-muted-foreground">
-            hello@bakedbyjojo.com<br />
-            (555) 123-BAKE
+            bakedbyjojo124@gmail.com<br />
+            914-419-0765
           </p>
         </div>
       </div>
@@ -75,10 +76,12 @@ export function SiteFooter() {
 
 export function SiteLayout() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <SiteHeader />
-      <main className="flex-1"><Outlet /></main>
-      <SiteFooter />
-    </div>
+    <CartProvider>
+      <div className="min-h-screen flex flex-col">
+        <SiteHeader />
+        <main className="flex-1"><Outlet /></main>
+        <SiteFooter />
+      </div>
+    </CartProvider>
   );
 }
