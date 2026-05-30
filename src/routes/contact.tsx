@@ -32,6 +32,9 @@ export const Route = createFileRoute("/contact")({
 
 function ContactPage() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  // Shipping needs a delivery address; pickup doesn't. Track the choice so the
+  // address question only appears when the customer picks shipping.
+  const [isShipping, setIsShipping] = useState(false);
   const sent = status === "sent";
   const {
     cookieItems,
@@ -96,6 +99,7 @@ function ContactPage() {
     body.push(`Phone: ${form.get("phone") || "—"}`);
     body.push(`Needed by: ${form.get("date") || "—"}`);
     body.push(`Fulfillment: ${form.get("fulfillment") || "—"}`);
+    if (isShipping) body.push(`Shipping address: ${form.get("address") || "—"}`);
 
     const subject = `New cookie order from ${customerName}`;
     const message = body.join("\n");
@@ -127,6 +131,7 @@ function ContactPage() {
           phone: form.get("phone"),
           needed_by: form.get("date"),
           fulfillment: form.get("fulfillment"),
+          address: isShipping ? form.get("address") : undefined,
           message,
         }),
       });
@@ -157,6 +162,9 @@ function ContactPage() {
             onSubmit={handleSubmit}
             className="rounded-3xl bg-card border border-border p-8 md:p-10 shadow-soft space-y-5"
           >
+            <p className="rounded-xl bg-secondary/60 px-4 py-2.5 text-center text-sm font-medium text-primary">
+              Shipping only in NY state
+            </p>
             <div>
               <label className="block text-sm font-medium text-primary mb-2">Your order</label>
               {!hasOrder ? (
@@ -217,12 +225,25 @@ function ContactPage() {
               <label className="block text-sm font-medium text-primary mb-2">Pickup or shipping?</label>
               <select
                 name="fulfillment"
+                onChange={(e) => setIsShipping(e.target.value.startsWith("Ship"))}
                 className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 <option>Local pickup (Cookies and Platters)</option>
                 <option>Ship anywhere in the state (Cookies Only no Platter)</option>
               </select>
             </div>
+            {isShipping && (
+              <div>
+                <label className="block text-sm font-medium text-primary mb-2">Shipping address</label>
+                <textarea
+                  name="address"
+                  required
+                  rows={3}
+                  placeholder="Street address, city, NY, ZIP"
+                  className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                />
+              </div>
+            )}
             <button
               type="submit"
               disabled={(!hasOrder && !sent) || status === "sending"}
