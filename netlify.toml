@@ -1,0 +1,18 @@
+[build]
+  command = "npm run build"
+  publish = "dist/client"
+
+[build.environment]
+  # Pin a modern Node version (matches @types/node in package.json).
+  NODE_VERSION = "22"
+  # The repo contains both bun.lockb and package-lock.json — force npm so the
+  # build matches local `npm run build`.
+  NETLIFY_USE_PNPM = "false"
+
+# Client-side routing fallback: any path without a prerendered file falls back to
+# the app shell so the TanStack router (and its 404 page) can handle it.
+# Netlify always serves matching static files first, so prerendered pages win.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
