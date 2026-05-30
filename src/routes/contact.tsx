@@ -99,6 +99,7 @@ function ContactPage() {
     body.push(`Phone: ${form.get("phone") || "—"}`);
     body.push(`Needed by: ${form.get("date") || "—"}`);
     body.push(`Fulfillment: ${form.get("fulfillment") || "—"}`);
+    if (!isShipping) body.push(`Pickup time: ${form.get("pickup_time") || "—"}`);
     if (isShipping) body.push(`Shipping address: ${form.get("address") || "—"}`);
 
     const subject = `New cookie order from ${customerName}`;
@@ -131,6 +132,7 @@ function ContactPage() {
           phone: form.get("phone"),
           needed_by: form.get("date"),
           fulfillment: form.get("fulfillment"),
+          pickup_time: !isShipping ? form.get("pickup_time") : undefined,
           address: isShipping ? form.get("address") : undefined,
           message,
         }),
@@ -232,6 +234,25 @@ function ContactPage() {
                 <option>Ship anywhere in the state (Cookies Only no Platter)</option>
               </select>
             </div>
+            {!isShipping && (
+              <div>
+                <label className="block text-sm font-medium text-primary mb-2">
+                  Preferred pickup time (5pm–8pm)
+                </label>
+                <select
+                  name="pickup_time"
+                  className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                >
+                  <option>5:00 pm</option>
+                  <option>5:30 pm</option>
+                  <option>6:00 pm</option>
+                  <option>6:30 pm</option>
+                  <option>7:00 pm</option>
+                  <option>7:30 pm</option>
+                  <option>8:00 pm</option>
+                </select>
+              </div>
+            )}
             {isShipping && (
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">Shipping address</label>

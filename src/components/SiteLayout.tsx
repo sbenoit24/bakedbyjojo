@@ -55,8 +55,9 @@ export function SiteFooter() {
         <div>
           <h4 className="text-sm font-semibold text-primary">Visit</h4>
           <p className="mt-3 text-sm text-muted-foreground">
-            Local pickup & statewide shipping<br />
-            Tue–Sat, 9am–5pm
+            Statewide Shipping<br />
+            Local Pickup:<br />
+            Mon–Fri 5pm–8pm & Sat–Sun 1pm–7pm
           </p>
         </div>
         <div>
