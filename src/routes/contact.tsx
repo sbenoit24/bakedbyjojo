@@ -18,6 +18,38 @@ const DEFAULT_WEB3FORMS_ACCESS_KEY = "1a083688-5e7b-4b24-9ef5-0db4927dc4b0";
 const WEB3FORMS_ACCESS_KEY =
   import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || DEFAULT_WEB3FORMS_ACCESS_KEY;
 
+// Today as YYYY-MM-DD in the customer's local timezone — used as the date
+// input's `min` so past days can't be selected.
+function todayLocalISO() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
+// A "YYYY-MM-DD" string falls on a weekend? Parse the parts explicitly so the
+// date is read in local time (new Date("YYYY-MM-DD") would parse as UTC and can
+// shift the weekday across timezones).
+function isWeekendISO(dateStr: string) {
+  if (!dateStr) return false;
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const day = new Date(y, m - 1, d).getDay();
+  return day === 0 || day === 6;
+}
+
+// Half-hour pickup slots from startHour to endHour inclusive (24-hour input),
+// formatted like "5:00 pm". The end hour only contributes its on-the-hour slot.
+function buildTimeSlots(startHour: number, endHour: number) {
+  const slots: string[] = [];
+  for (let h = startHour; h <= endHour; h++) {
+    for (const min of [0, 30]) {
+      if (h === endHour && min > 0) break;
+      const hour12 = ((h + 11) % 12) + 1;
+      const ampm = h >= 12 ? "pm" : "am";
+      slots.push(`${hour12}:${min === 0 ? "00" : "30"} ${ampm}`);
+    }
+  }
+  return slots;
+}
+
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
@@ -35,6 +67,13 @@ function ContactPage() {
   // Shipping needs a delivery address; pickup doesn't. Track the choice so the
   // address question only appears when the customer picks shipping.
   const [isShipping, setIsShipping] = useState(false);
+  // The chosen "needed by" date drives which pickup times are offered:
+  // weekdays run 5pm–8pm, weekends 1pm–7pm.
+  const [date, setDate] = useState("");
+  const minDate = todayLocalISO();
+  const isWeekend = isWeekendISO(date);
+  const pickupSlots = isWeekend ? buildTimeSlots(13, 19) : buildTimeSlots(17, 20);
+  const pickupWindowLabel = isWeekend ? "1pm–7pm" : "5pm–8pm";
   const sent = status === "sent";
   const {
     cookieItems,
@@ -221,7 +260,17 @@ function ContactPage() {
             </div>
             <div className="grid gap-5 sm:grid-cols-2">
               <Field label="Phone" name="phone" type="tel" />
-              <Field label="Needed by" name="date" type="date" />
+              <div>
+                <label className="block text-sm font-medium text-primary mb-2">Needed by</label>
+                <input
+                  type="date"
+                  name="date"
+                  value={date}
+                  min={minDate}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-primary mb-2">Pickup or shipping?</label>
@@ -237,19 +286,18 @@ function ContactPage() {
             {!isShipping && (
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">
-                  Preferred pickup time (5pm–8pm)
+                  Preferred pickup time ({pickupWindowLabel})
                 </label>
                 <select
+                  // Remount when the window changes so the selection resets to a
+                  // valid slot instead of keeping a now-unavailable time.
+                  key={isWeekend ? "weekend" : "weekday"}
                   name="pickup_time"
                   className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                 >
-                  <option>5:00 pm</option>
-                  <option>5:30 pm</option>
-                  <option>6:00 pm</option>
-                  <option>6:30 pm</option>
-                  <option>7:00 pm</option>
-                  <option>7:30 pm</option>
-                  <option>8:00 pm</option>
+                  {pickupSlots.map((slot) => (
+                    <option key={slot}>{slot}</option>
+                  ))}
                 </select>
               </div>
             )}
