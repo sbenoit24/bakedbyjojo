@@ -22,7 +22,7 @@ export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
       { title: "Order & Contact — bakedbyjojo" },
-      { name: "description", content: "Place an order or get in touch with Joann. Pickup, local delivery, and statewide shipping available." },
+      { name: "description", content: "Place an order or get in touch with Joann. Local pickup and statewide shipping available." },
       { property: "og:title", content: "Order from bakedbyjojo" },
       { property: "og:description", content: "Place an order or get in touch with Joann." },
     ],
@@ -214,7 +214,7 @@ function ContactPage() {
               <Field label="Needed by" name="date" type="date" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-primary mb-2">Pickup, delivery, or shipping?</label>
+              <label className="block text-sm font-medium text-primary mb-2">Pickup or shipping?</label>
               <select
                 name="fulfillment"
                 className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
@@ -260,7 +260,7 @@ function ContactPage() {
         <aside className="lg:col-span-2 space-y-4">
           <InfoCard icon={Mail} title="Email" body="bakedbyjojo124@gmail.com" />
           <InfoCard icon={Phone} title="Phone" body="914-419-0765" />
-          <InfoCard icon={MapPin} title="Service area" body="Local pickup & delivery in town and across the county. Shipping statewide." />
+          <InfoCard icon={MapPin} title="Service area" body="Local pickup and statewide shipping." />
         </aside>
       </div>
     </div>

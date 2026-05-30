@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "bakedbyjojo — Homemade Cookies, Baked with Love" },
-      { name: "description", content: "Small-batch homemade cookies from Joann Sachs. Order online for pickup, local delivery, or statewide shipping." },
+      { name: "description", content: "Small-batch homemade cookies from Joann Sachs. Order online for local pickup or statewide shipping." },
       { property: "og:title", content: "bakedbyjojo" },
       { property: "og:description", content: "Small-batch homemade cookies, baked with love." },
     ],
@@ -68,7 +68,7 @@ function HomePage() {
           {[
             { icon: Heart, title: "Made by hand", body: "Every batch baked personally by Joann." },
             { icon: Sparkles, title: "Real ingredients", body: "Real butter, pure vanilla, premium chocolate." },
-            { icon: Truck, title: "Delivered fresh", body: "Local delivery & shipping across the state." },
+            { icon: Truck, title: "Pickup & shipping", body: "Local pickup and statewide shipping." },
           ].map((f) => (
             <div key={f.title} className="flex flex-col items-center gap-2">
               <f.icon className="h-6 w-6 text-accent" />

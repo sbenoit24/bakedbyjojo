@@ -30,7 +30,7 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "bakedbyjojo — Homemade Cookies, Baked with Love" },
-      { name: "description", content: "Small-batch homemade cookies from Joann Sachs. Order classic chocolate chip, sugar, oatmeal, and more for pickup, local delivery, and statewide shipping." },
+      { name: "description", content: "Small-batch homemade cookies from Joann Sachs. Order classic chocolate chip, sugar, oatmeal, and more for local pickup and statewide shipping." },
       { property: "og:title", content: "bakedbyjojo" },
       { property: "og:description", content: "Small-batch homemade cookies, baked with love." },
       { property: "og:type", content: "website" },
