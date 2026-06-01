@@ -20,16 +20,16 @@ export type Cookie = {
 export const cookies: Cookie[] = [
   {
     slug: "classic-chocolate-chip",
-    name: "ChocoNut Craze",
+    name: "Figgie's Favorites (Brownie P.B. Chip)",
     tagline: "The one that started it all",
     description:
-      "Brown butter, Madagascar vanilla, and pools of semi-sweet chocolate. Crisp edges, gooey center.",
+      "Dutch cocoa dough loaded with dark chocolate chunks. Fudgy, decadent, unapologetic.",
     ingredients:
-      "Butter, Nutella, sugar, brown sugar, eggs, vanilla extract, flour, baking soda, hazelnuts, semi-sweet chocolate chips.",
-    allergens: "Contains: tree nuts (hazelnuts), wheat, eggs, dairy, soy.",
+      "Sugar, wheat flour, cocoa powder, semi-sweet, bittersweet, peanut butter & milk chocolate chips, butter, whole milk, eggs, vanilla extract, baking soda, and a pinch of salt.",
+    allergens: "Contains: wheat, dairy, eggs, soy, and peanuts. May contain tree nuts.",
     price: 13,
-    image: chocolateChip,
-    badge: "Bestseller",
+    image: doubleChocolate,
+    badge: "Fan favorite",
   },
   {
     slug: "frosted-sugar",
@@ -81,15 +81,15 @@ export const cookies: Cookie[] = [
   },
   {
     slug: "double-chocolate",
-    name: "Figgie's Favorites (Brownie P.B. Chip)",
+    name: "ChocoNut Craze",
     tagline: "For the serious chocoholic",
     description:
-      "Dutch cocoa dough loaded with dark chocolate chunks. Fudgy, decadent, unapologetic.",
+      "Brown butter, Madagascar vanilla, and pools of semi-sweet chocolate. Crisp edges, gooey center.",
     ingredients:
-      "Sugar, wheat flour, cocoa powder, semi-sweet, bittersweet, peanut butter & milk chocolate chips, butter, whole milk, eggs, vanilla extract, baking soda, and a pinch of salt.",
-    allergens: "Contains: wheat, dairy, eggs, soy, and peanuts. May contain tree nuts.",
+      "Butter, Nutella, sugar, brown sugar, eggs, vanilla extract, flour, baking soda, hazelnuts, semi-sweet chocolate chips.",
+    allergens: "Contains: tree nuts (hazelnuts), wheat, eggs, dairy, soy.",
     price: 13,
-    image: doubleChocolate,
-    badge: "Fan favorite",
+    image: chocolateChip,
+    badge: "Bestseller",
   },
 ];
