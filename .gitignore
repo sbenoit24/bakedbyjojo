@@ -34,3 +34,6 @@ dist-ssr
 # Local env (Web3Forms key, etc.)
 .env
 .env.local
+
+# Local Netlify folder
+.netlify

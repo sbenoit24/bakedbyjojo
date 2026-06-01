@@ -15,6 +15,13 @@ export type Cookie = {
   price: number;
   image: string;
   badge?: string;
+  // Stripe Price ID (one dozen) used by Stripe Checkout. The real price lives in
+  // Stripe — the cart only ever sends this ID + a quantity, never a dollar
+  // amount, so a customer can't tamper with what they're charged. Create one
+  // recurring-off Price per cookie in the Stripe Dashboard (Products → Add price)
+  // and paste its `price_…` ID here. Until these are real IDs, Checkout will
+  // return an error from Stripe.
+  stripePriceId: string;
 };
 
 export const cookies: Cookie[] = [
@@ -30,6 +37,7 @@ export const cookies: Cookie[] = [
     price: 13,
     image: doubleChocolate,
     badge: "Fan favorite",
+    stripePriceId: "price_1TdaL8RRYxXC5vq1TupNQgRM",
   },
   {
     slug: "frosted-sugar",
@@ -42,6 +50,7 @@ export const cookies: Cookie[] = [
     allergens: "Contains: wheat/gluten, dairy, eggs, and tree nuts (almonds).",
     price: 13,
     image: sugar,
+    stripePriceId: "price_1TdaLZRRYxXC5vq1JXMjpbQ5",
   },
   {
     slug: "oatmeal-raisin",
@@ -54,6 +63,7 @@ export const cookies: Cookie[] = [
     allergens: "Contains: wheat, eggs, dairy.",
     price: 13,
     image: oatmeal,
+    stripePriceId: "price_1TdaLyRRYxXC5vq1Zsd0nkla",
   },
   {
     slug: "snickerdoodle",
@@ -66,6 +76,7 @@ export const cookies: Cookie[] = [
     allergens: "Contains: wheat, eggs, dairy, soy, and honey.",
     price: 13,
     image: snickerdoodle,
+    stripePriceId: "price_1TdaMLRRYxXC5vq1yWpU1UaN",
   },
   {
     slug: "peanut-butter",
@@ -78,6 +89,7 @@ export const cookies: Cookie[] = [
     allergens: "Contains: wheat, eggs, dairy, soy. May contain traces of tree nuts.",
     price: 13,
     image: peanutButter,
+    stripePriceId: "price_1TdaMhRRYxXC5vq1RUanF7xI",
   },
   {
     slug: "double-chocolate",
@@ -91,5 +103,6 @@ export const cookies: Cookie[] = [
     price: 13,
     image: chocolateChip,
     badge: "Bestseller",
+    stripePriceId: "price_1TdaN4RRYxXC5vq1x2Raiiyu",
   },
 ];

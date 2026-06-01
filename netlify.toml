@@ -9,6 +9,13 @@
   # build matches local `npm run build`.
   NETLIFY_USE_PNPM = "false"
 
+# Stripe Checkout runs in a Netlify Function. Requests to /.netlify/functions/*
+# are reserved by Netlify and routed here before the SPA fallback redirect below
+# can apply, so checkout works even with the catch-all rewrite.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 # Client-side routing fallback: any path without a prerendered file falls back to
 # the app shell so the TanStack router (and its 404 page) can handle it.
 # Netlify always serves matching static files first, so prerendered pages win.
@@ -16,3 +23,8 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+[dev]
+  command = "npm run dev"
+  targetPort = 8080
+  framework = "#custom"
