@@ -62,6 +62,31 @@ export const handler = async (event) => {
   const shippingCost = session.shipping_cost?.amount_total ?? 0;
   const isPickup = shippingCost === 0 || /pickup/i.test(shippingName);
 
+  // Scheduled pickup time, set as metadata when the session was created. Format
+  // for Joann (the shop owner) in New York time, e.g.
+  // "Saturday, June 7, 2026 at 2:30 PM".
+  const pickupAtIso = session.metadata?.pickup_at;
+  let pickupTime = "";
+  if (pickupAtIso) {
+    const d = new Date(pickupAtIso);
+    if (!Number.isNaN(d.getTime())) {
+      const tz = { timeZone: "America/New_York" };
+      const datePart = d.toLocaleDateString("en-US", {
+        ...tz,
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+      const timePart = d.toLocaleTimeString("en-US", {
+        ...tz,
+        hour: "numeric",
+        minute: "2-digit",
+      });
+      pickupTime = `${datePart} at ${timePart}`;
+    }
+  }
+
   // Shipping address moved from session.shipping_details to
   // session.collected_information.shipping_details in newer API versions —
   // check both so this works regardless.
@@ -89,7 +114,7 @@ export const handler = async (event) => {
   const subject = `New order — ${usd(orderTotal)} from ${customerName}`;
 
   const shippingBlock = isPickup
-    ? "Method: Local pickup — Westchester, NY"
+    ? `Method: Local pickup — Westchester, NY${pickupTime ? `\nPickup time: ${pickupTime}` : ""}`
     : `Method: ${shippingName}\nShip to:\n${
         shippingAddr ? formatAddr(shippingAddr) : "(no address on file)"
       }`;

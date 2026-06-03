@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Loader2, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { cookies as cookieData } from "@/data/cookies";
 import { useCart, type CartItems } from "@/hooks/use-cart";
 import { cartToLineItems, isCheckoutConfigured, startCheckout, type Fulfillment } from "@/lib/checkout";
+import { CLOSED_DATES } from "@/data/closed-dates";
+import { PICKUP_WINDOW_DAYS, parseLocalDate, slotsForDay, toISOWithOffset } from "@/lib/pickup";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Sheet,
   SheetContent,
@@ -69,6 +72,32 @@ export function CartDrawer() {
   const [error, setError] = useState<string | null>(null);
   const [fulfillment, setFulfillment] = useState<Fulfillment | null>(null);
 
+  // Pickup scheduling. `today` stays null until the client mounts so we never
+  // call new Date() during render — keeps SSR and first client render identical.
+  const [today, setToday] = useState<Date | null>(null);
+  const [pickupDate, setPickupDate] = useState<Date | undefined>(undefined);
+  const [pickupSlot, setPickupSlot] = useState<number | null>(null);
+
+  useEffect(() => {
+    const now = new Date();
+    setToday(new Date(now.getFullYear(), now.getMonth(), now.getDate())); // local midnight
+  }, []);
+
+  // Earliest = tomorrow, latest = today + window. Out-of-range days are disabled
+  // (greyed/unclickable) along with any configured closed dates.
+  const tomorrow = today
+    ? new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
+    : undefined;
+  const maxDate = today
+    ? new Date(today.getFullYear(), today.getMonth(), today.getDate() + PICKUP_WINDOW_DAYS)
+    : undefined;
+  const disabledDays =
+    tomorrow && maxDate
+      ? [{ before: tomorrow }, { after: maxDate }, ...CLOSED_DATES.map(parseLocalDate)]
+      : undefined;
+  const slots = pickupDate ? slotsForDay(pickupDate.getDay()) : [];
+  const pickupReady = !!pickupDate && pickupSlot !== null;
+
   const cookieLines = toLines(cookieItems);
   const platterGroups = platters
     .map((items, index) => ({ index, lines: toLines(items) }))
@@ -82,10 +111,17 @@ export function CartDrawer() {
   const handleCheckout = async () => {
     const items = cartToLineItems(cookieItems, platters);
     if (items.length === 0 || !fulfillment) return;
+
+    let pickupAt: string | undefined;
+    if (fulfillment === "pickup") {
+      if (!pickupDate || pickupSlot === null) return; // need both date and time
+      pickupAt = toISOWithOffset(pickupDate, pickupSlot);
+    }
+
     setError(null);
     setLoading(true);
     try {
-      await startCheckout(items, fulfillment);
+      await startCheckout(items, fulfillment, pickupAt);
       // On success the browser redirects to Stripe, so we never reach here.
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
@@ -254,7 +290,11 @@ export function CartDrawer() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFulfillment("shipping")}
+                    onClick={() => {
+                      setFulfillment("shipping");
+                      setPickupDate(undefined);
+                      setPickupSlot(null);
+                    }}
                     aria-pressed={fulfillment === "shipping"}
                     className={`rounded-xl border px-4 py-2.5 text-left transition-colors ${
                       fulfillment === "shipping"
@@ -270,10 +310,53 @@ export function CartDrawer() {
                 </div>
               </fieldset>
 
+              {fulfillment === "pickup" && (
+                <div className="mt-4 rounded-xl border border-border p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-accent">
+                    Pick a pickup time
+                  </p>
+                  <Calendar
+                    mode="single"
+                    selected={pickupDate}
+                    onSelect={(d) => {
+                      setPickupDate(d);
+                      setPickupSlot(null);
+                    }}
+                    disabled={disabledDays}
+                    startMonth={today ?? undefined}
+                    endMonth={maxDate ?? undefined}
+                    className="mx-auto mt-2"
+                  />
+                  {pickupDate ? (
+                    <div className="mt-1 grid grid-cols-3 gap-2">
+                      {slots.map((s) => (
+                        <button
+                          key={s.minutes}
+                          type="button"
+                          onClick={() => setPickupSlot(s.minutes)}
+                          aria-pressed={pickupSlot === s.minutes}
+                          className={`rounded-xl border px-2 py-2 text-sm font-semibold transition-colors ${
+                            pickupSlot === s.minutes
+                              ? "border-accent bg-secondary text-primary"
+                              : "border-border text-foreground hover:bg-secondary"
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-1 text-center text-xs text-muted-foreground">
+                      Choose a date to see available times.
+                    </p>
+                  )}
+                </div>
+              )}
+
               <button
                 type="button"
                 onClick={handleCheckout}
-                disabled={loading || !fulfillment}
+                disabled={loading || !fulfillment || (fulfillment === "pickup" && !pickupReady)}
                 className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-warm hover:translate-y-[-1px] transition-all disabled:opacity-60 disabled:hover:translate-y-0"
               >
                 {loading ? (

@@ -44,9 +44,9 @@ export const handler = async (event) => {
     });
   }
 
-  let items, fulfillment;
+  let items, fulfillment, pickupAt;
   try {
-    ({ items, fulfillment } = JSON.parse(event.body || "{}"));
+    ({ items, fulfillment, pickupAt } = JSON.parse(event.body || "{}"));
   } catch {
     return json(400, { error: "Invalid JSON body" });
   }
@@ -61,6 +61,24 @@ export const handler = async (event) => {
     return json(400, { error: 'fulfillment must be "pickup" or "shipping"' });
   }
   const method = fulfillment === "pickup" ? "pickup" : "shipping";
+
+  // Pickup orders carry a scheduled pickup time. It's required for pickup,
+  // must parse, and must be in the future (guards against tampered requests).
+  // For shipping, any pickupAt in the body is ignored.
+  let pickupMetadata;
+  if (method === "pickup") {
+    if (typeof pickupAt !== "string" || !pickupAt) {
+      return json(400, { error: "pickupAt is required for pickup orders" });
+    }
+    const t = Date.parse(pickupAt);
+    if (Number.isNaN(t)) {
+      return json(400, { error: "pickupAt is not a valid date" });
+    }
+    if (t <= Date.now()) {
+      return json(400, { error: "pickupAt must be in the future" });
+    }
+    pickupMetadata = { pickup_at: pickupAt, fulfillment: "pickup" };
+  }
 
   // Validate and normalise every line item before talking to Stripe.
   const lineItems = [];
@@ -91,6 +109,10 @@ export const handler = async (event) => {
     cancel_url: `${origin}/cancel`,
     billing_address_collection: "auto",
   };
+
+  if (pickupMetadata) {
+    sessionConfig.metadata = pickupMetadata;
+  }
 
   if (method === "pickup") {
     // No address form needed; collect a phone so we can coordinate pickup.

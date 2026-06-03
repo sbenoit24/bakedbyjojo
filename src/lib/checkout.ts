@@ -43,11 +43,15 @@ export function cartToLineItems(cookieItems: CartItems, platters: CartItems[]): 
 // Call the Netlify function to create a Checkout Session, then hand the browser
 // off to Stripe's hosted checkout page. Throws on any failure so the caller can
 // surface the message.
-export async function startCheckout(items: LineItem[], fulfillment: Fulfillment): Promise<void> {
+export async function startCheckout(
+  items: LineItem[],
+  fulfillment: Fulfillment,
+  pickupAt?: string,
+): Promise<void> {
   const res = await fetch(CHECKOUT_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ items, fulfillment }),
+    body: JSON.stringify({ items, fulfillment, ...(pickupAt ? { pickupAt } : {}) }),
   });
 
   if (!res.ok) {
