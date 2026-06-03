@@ -72,6 +72,11 @@ export const handler = async (event) => {
   const stripe = new Stripe(secretKey);
   const origin = resolveOrigin(event);
 
+  // Each line item is one dozen cookies. NY-only USPS rate scales with dozens:
+  // $6 for the first dozen, +$1 per additional dozen.
+  const totalQuantity = lineItems.reduce((sum, li) => sum + li.quantity, 0);
+  const shippingCents = 600 + (totalQuantity - 1) * 100;
+
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -79,6 +84,33 @@ export const handler = async (event) => {
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/cancel`,
       billing_address_collection: "auto",
+      shipping_address_collection: { allowed_countries: ["US"] },
+      shipping_options: [
+        {
+          shipping_rate_data: {
+            type: "fixed_amount",
+            fixed_amount: { amount: 0, currency: "usd" },
+            display_name: "Local pickup (Westchester, NY)",
+          },
+        },
+        {
+          shipping_rate_data: {
+            type: "fixed_amount",
+            fixed_amount: { amount: shippingCents, currency: "usd" },
+            display_name: "USPS Priority Shipping — NY only",
+            delivery_estimate: {
+              minimum: { unit: "business_day", value: 2 },
+              maximum: { unit: "business_day", value: 5 },
+            },
+          },
+        },
+      ],
+      custom_text: {
+        shipping_address: {
+          message:
+            "Shipping is currently only available within New York State. If you live outside NY, please choose Local pickup.",
+        },
+      },
     });
     return json(200, { url: session.url, id: session.id });
   } catch (err) {
