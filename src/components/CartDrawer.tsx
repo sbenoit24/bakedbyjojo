@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Loader2, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { cookies as cookieData } from "@/data/cookies";
 import { useCart, type CartItems } from "@/hooks/use-cart";
-import { cartToLineItems, isCheckoutConfigured, startCheckout } from "@/lib/checkout";
+import { cartToLineItems, isCheckoutConfigured, startCheckout, type Fulfillment } from "@/lib/checkout";
 import {
   Sheet,
   SheetContent,
@@ -67,6 +67,7 @@ export function CartDrawer() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fulfillment, setFulfillment] = useState<Fulfillment | null>(null);
 
   const cookieLines = toLines(cookieItems);
   const platterGroups = platters
@@ -80,11 +81,11 @@ export function CartDrawer() {
 
   const handleCheckout = async () => {
     const items = cartToLineItems(cookieItems, platters);
-    if (items.length === 0) return;
+    if (items.length === 0 || !fulfillment) return;
     setError(null);
     setLoading(true);
     try {
-      await startCheckout(items);
+      await startCheckout(items, fulfillment);
       // On success the browser redirects to Stripe, so we never reach here.
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
@@ -231,10 +232,48 @@ export function CartDrawer() {
                 </p>
               )}
 
+              <fieldset className="mt-4">
+                <legend className="text-xs font-semibold uppercase tracking-wider text-accent">
+                  How would you like to get your cookies?
+                </legend>
+                <div className="mt-2 grid gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFulfillment("pickup")}
+                    aria-pressed={fulfillment === "pickup"}
+                    className={`rounded-xl border px-4 py-2.5 text-left transition-colors ${
+                      fulfillment === "pickup"
+                        ? "border-accent bg-secondary text-primary"
+                        : "border-border text-foreground hover:bg-secondary"
+                    }`}
+                  >
+                    <span className="block text-sm font-semibold">Local pickup</span>
+                    <span className="block text-xs text-muted-foreground">
+                      Free — Westchester, NY
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFulfillment("shipping")}
+                    aria-pressed={fulfillment === "shipping"}
+                    className={`rounded-xl border px-4 py-2.5 text-left transition-colors ${
+                      fulfillment === "shipping"
+                        ? "border-accent bg-secondary text-primary"
+                        : "border-border text-foreground hover:bg-secondary"
+                    }`}
+                  >
+                    <span className="block text-sm font-semibold">Ship to me</span>
+                    <span className="block text-xs text-muted-foreground">
+                      NY only, calculated at checkout
+                    </span>
+                  </button>
+                </div>
+              </fieldset>
+
               <button
                 type="button"
                 onClick={handleCheckout}
-                disabled={loading}
+                disabled={loading || !fulfillment}
                 className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-warm hover:translate-y-[-1px] transition-all disabled:opacity-60 disabled:hover:translate-y-0"
               >
                 {loading ? (

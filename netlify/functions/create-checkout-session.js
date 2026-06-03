@@ -44,9 +44,9 @@ export const handler = async (event) => {
     });
   }
 
-  let items;
+  let items, fulfillment;
   try {
-    ({ items } = JSON.parse(event.body || "{}"));
+    ({ items, fulfillment } = JSON.parse(event.body || "{}"));
   } catch {
     return json(400, { error: "Invalid JSON body" });
   }
@@ -54,6 +54,13 @@ export const handler = async (event) => {
   if (!Array.isArray(items) || items.length === 0) {
     return json(400, { error: "No items provided" });
   }
+
+  // Pickup vs shipping. Missing → default to "shipping" (backward compat).
+  // Present but not one of the two valid strings → reject.
+  if (fulfillment !== undefined && fulfillment !== "pickup" && fulfillment !== "shipping") {
+    return json(400, { error: 'fulfillment must be "pickup" or "shipping"' });
+  }
+  const method = fulfillment === "pickup" ? "pickup" : "shipping";
 
   // Validate and normalise every line item before talking to Stripe.
   const lineItems = [];
@@ -77,41 +84,51 @@ export const handler = async (event) => {
   const totalQuantity = lineItems.reduce((sum, li) => sum + li.quantity, 0);
   const shippingCents = 600 + (totalQuantity - 1) * 100;
 
-  try {
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: lineItems,
-      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/cancel`,
-      billing_address_collection: "auto",
-      shipping_address_collection: { allowed_countries: ["US"] },
-      shipping_options: [
-        {
-          shipping_rate_data: {
-            type: "fixed_amount",
-            fixed_amount: { amount: 0, currency: "usd" },
-            display_name: "Local pickup (Westchester, NY)",
-          },
-        },
-        {
-          shipping_rate_data: {
-            type: "fixed_amount",
-            fixed_amount: { amount: shippingCents, currency: "usd" },
-            display_name: "USPS Priority Shipping — NY only",
-            delivery_estimate: {
-              minimum: { unit: "business_day", value: 2 },
-              maximum: { unit: "business_day", value: 5 },
-            },
-          },
-        },
-      ],
-      custom_text: {
-        shipping_address: {
-          message:
-            "Shipping is currently only available within New York State. If you live outside NY, please choose Local pickup.",
+  const sessionConfig = {
+    mode: "payment",
+    line_items: lineItems,
+    success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${origin}/cancel`,
+    billing_address_collection: "auto",
+  };
+
+  if (method === "pickup") {
+    // No address form needed; collect a phone so we can coordinate pickup.
+    sessionConfig.phone_number_collection = { enabled: true };
+    sessionConfig.shipping_options = [
+      {
+        shipping_rate_data: {
+          type: "fixed_amount",
+          fixed_amount: { amount: 0, currency: "usd" },
+          display_name: "Local pickup (Westchester, NY)",
         },
       },
-    });
+    ];
+  } else {
+    sessionConfig.shipping_address_collection = { allowed_countries: ["US"] };
+    sessionConfig.shipping_options = [
+      {
+        shipping_rate_data: {
+          type: "fixed_amount",
+          fixed_amount: { amount: shippingCents, currency: "usd" },
+          display_name: "USPS Priority Shipping — NY only",
+          delivery_estimate: {
+            minimum: { unit: "business_day", value: 2 },
+            maximum: { unit: "business_day", value: 5 },
+          },
+        },
+      },
+    ];
+    sessionConfig.custom_text = {
+      shipping_address: {
+        message:
+          "Shipping is currently only available within New York State. If you live outside NY, please choose Local pickup.",
+      },
+    };
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.create(sessionConfig);
     return json(200, { url: session.url, id: session.id });
   } catch (err) {
     // Surface Stripe's message (e.g. a bad price ID) so the client can show it.

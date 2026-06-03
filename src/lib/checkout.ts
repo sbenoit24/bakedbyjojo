@@ -13,6 +13,7 @@ export const isCheckoutConfigured = Boolean(STRIPE_PUBLISHABLE_KEY);
 const CHECKOUT_ENDPOINT = "/.netlify/functions/create-checkout-session";
 
 export type LineItem = { priceId: string; quantity: number };
+export type Fulfillment = "pickup" | "shipping";
 
 // Flatten the whole cart — à-la-carte cookie dozens plus every platter — into a
 // list of { priceId, quantity } items. Cookies are priced by the dozen, so the
@@ -42,11 +43,11 @@ export function cartToLineItems(cookieItems: CartItems, platters: CartItems[]): 
 // Call the Netlify function to create a Checkout Session, then hand the browser
 // off to Stripe's hosted checkout page. Throws on any failure so the caller can
 // surface the message.
-export async function startCheckout(items: LineItem[]): Promise<void> {
+export async function startCheckout(items: LineItem[], fulfillment: Fulfillment): Promise<void> {
   const res = await fetch(CHECKOUT_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ items }),
+    body: JSON.stringify({ items, fulfillment }),
   });
 
   if (!res.ok) {
