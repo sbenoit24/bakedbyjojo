@@ -169,7 +169,8 @@ export function CartDrawer() {
           </div>
         ) : (
           <>
-            <div className="-mx-6 flex-1 overflow-y-auto px-6 py-4">
+            <div className="-mx-6 flex-1 overflow-y-auto px-6">
+              <div className="py-4">
               {cookieLines.length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-xs font-semibold uppercase tracking-wider text-accent">
@@ -245,9 +246,9 @@ export function CartDrawer() {
                   ))}
                 </div>
               ))}
-            </div>
+              </div>
 
-            <div className="border-t border-border pt-4">
+              <div className="border-t border-border pt-4 pb-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="font-display text-xl font-semibold text-primary">${subtotal}</span>
@@ -352,12 +353,15 @@ export function CartDrawer() {
                   )}
                 </div>
               )}
+              </div>
+            </div>
 
+            <div className="border-t border-border pt-4">
               <button
                 type="button"
                 onClick={handleCheckout}
                 disabled={loading || !fulfillment || (fulfillment === "pickup" && !pickupReady)}
-                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-warm hover:translate-y-[-1px] transition-all disabled:opacity-60 disabled:hover:translate-y-0"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-warm hover:translate-y-[-1px] transition-all disabled:opacity-60 disabled:hover:translate-y-0"
               >
                 {loading ? (
                   <>
