@@ -159,7 +159,11 @@ export const handler = async (event) => {
   // send duplicate emails. Log and move on.
   try {
     await resend.emails.send({
-      from: "Baked by JoJo <onboarding@resend.dev>",
+      // Must be an address on a Resend-verified domain (bakedbyjojo.com).
+      // The shared onboarding@resend.dev sandbox sender can ONLY deliver to the
+      // Resend account owner's own inbox, which would silently drop every real
+      // order — so we send from the verified domain instead.
+      from: "Baked by JoJo <orders@bakedbyjojo.com>",
       to: process.env.OWNER_EMAIL,
       subject,
       text,
