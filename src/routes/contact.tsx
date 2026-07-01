@@ -4,19 +4,12 @@ import { useState } from "react";
 import { cookies } from "@/data/cookies";
 import { useCart } from "@/hooks/use-cart";
 
-// Where placed orders are sent.
+// Where placed orders are sent. The /send-order Netlify function delivers each
+// submission here server-side via Resend's verified bakedbyjojo.com domain — the
+// same pipeline the Stripe order webhook uses — so the recipient is fixed in the
+// backend (process.env.OWNER_EMAIL) and can't be redirected from the client.
 const ORDER_EMAIL = "bakedbyjojo124@gmail.com";
-
-// Web3Forms delivers each submitted order straight to ORDER_EMAIL's inbox —
-// no customer mail app required, fully automatic. The key below is created for
-// bakedbyjojo124@gmail.com at https://web3forms.com and is meant to be used in
-// the browser, so it's safe to ship in the client bundle. It's hardcoded as the
-// default (rather than only read from .env) so the deployed build always has it
-// — .env is gitignored and never reaches the Netlify build. Set
-// VITE_WEB3FORMS_ACCESS_KEY in a .env file to override it locally if needed.
-const DEFAULT_WEB3FORMS_ACCESS_KEY = "1a083688-5e7b-4b24-9ef5-0db4927dc4b0";
-const WEB3FORMS_ACCESS_KEY =
-  import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || DEFAULT_WEB3FORMS_ACCESS_KEY;
+const SEND_ORDER_ENDPOINT = "/.netlify/functions/send-order";
 
 // Today as YYYY-MM-DD in the customer's local timezone — used as the date
 // input's `min` so past days can't be selected.
@@ -144,43 +137,29 @@ function ContactPage() {
     const subject = `New cookie order from ${customerName}`;
     const message = body.join("\n");
 
-    // No delivery key configured yet — fall back to opening the customer's
-    // mail client so orders are never silently dropped.
-    if (!WEB3FORMS_ACCESS_KEY) {
-      window.location.href = `mailto:${ORDER_EMAIL}?subject=${encodeURIComponent(
-        subject,
-      )}&body=${encodeURIComponent(message)}`;
-      setStatus("sent");
-      clear();
-      return;
-    }
-
     setStatus("sending");
     try {
-      const res = await fetch("https://api.web3forms.com/submit", {
+      const res = await fetch(SEND_ORDER_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          access_key: WEB3FORMS_ACCESS_KEY,
           subject,
-          from_name: customerName,
-          // Lets Joann reply straight to the customer from the order email.
-          replyto: (form.get("email") as string) || undefined,
           name: customerName,
+          // Lets Joann reply straight to the customer from the order email.
           email: form.get("email"),
-          phone: form.get("phone"),
-          needed_by: form.get("date"),
-          fulfillment: form.get("fulfillment"),
-          pickup_time: !isShipping ? form.get("pickup_time") : undefined,
-          address: isShipping ? form.get("address") : undefined,
           message,
         }),
       });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message ?? "Submission failed");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) throw new Error(data.error ?? "Submission failed");
       setStatus("sent");
       clear();
     } catch {
+      // Last-ditch fallback so an order is never silently dropped: open the
+      // customer's mail client pre-addressed to the bakery inbox.
+      window.location.href = `mailto:${ORDER_EMAIL}?subject=${encodeURIComponent(
+        subject,
+      )}&body=${encodeURIComponent(message)}`;
       setStatus("error");
     }
   };
