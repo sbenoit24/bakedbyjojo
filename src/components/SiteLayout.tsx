@@ -2,7 +2,6 @@ import { Link, Outlet } from "@tanstack/react-router";
 import { Cookie } from "lucide-react";
 import { CartProvider } from "@/hooks/use-cart";
 import { CartDrawer } from "@/components/CartDrawer";
-import { features } from "@/lib/features";
 
 const nav = [
   { to: "/", label: "Home" },
@@ -39,7 +38,7 @@ export function SiteHeader() {
               </Link>
             ))}
           </nav>
-          {features.cart && <CartDrawer />}
+          <CartDrawer />
         </div>
       </div>
     </header>

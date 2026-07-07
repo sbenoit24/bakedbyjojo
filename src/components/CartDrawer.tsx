@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Loader2, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { cookies as cookieData } from "@/data/cookies";
 import { useCart, type CartItems } from "@/hooks/use-cart";
-import { cartToLineItems, isCheckoutConfigured, startCheckout, type Fulfillment } from "@/lib/checkout";
+import { cartToLineItems, startCheckout, type Fulfillment } from "@/lib/checkout";
 import { CLOSED_DATES } from "@/data/closed-dates";
 import { PICKUP_WINDOW_DAYS, parseLocalDate, slotsForDay, toISOWithOffset } from "@/lib/pickup";
 import { Calendar } from "@/components/ui/calendar";
@@ -260,12 +260,6 @@ export function CartDrawer() {
               {error && (
                 <p className="mt-3 rounded-xl bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
                   {error}
-                </p>
-              )}
-              {!isCheckoutConfigured && (
-                <p className="mt-3 rounded-xl bg-secondary px-3 py-2 text-xs text-muted-foreground">
-                  Card checkout isn't configured yet. You can still place a pickup order on the
-                  Order page.
                 </p>
               )}
 
