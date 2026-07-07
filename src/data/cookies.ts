@@ -37,7 +37,7 @@ export const cookies: Cookie[] = [
     price: 13,
     image: doubleChocolate,
     badge: "Fan favorite",
-    stripePriceId: "price_1TdaL8RRYxXC5vq1TupNQgRM",
+    stripePriceId: "price_1TqiNIEo5sZAosNR4VAUfzrp",
   },
   {
     slug: "frosted-sugar",
@@ -50,7 +50,7 @@ export const cookies: Cookie[] = [
     allergens: "Contains: wheat/gluten, dairy, eggs, and tree nuts (almonds).",
     price: 13,
     image: sugar,
-    stripePriceId: "price_1TdaLZRRYxXC5vq1JXMjpbQ5",
+    stripePriceId: "price_1TqiNNEo5sZAosNRZbjg8VBz",
   },
   {
     slug: "oatmeal-raisin",
@@ -63,7 +63,7 @@ export const cookies: Cookie[] = [
     allergens: "Contains: wheat, eggs, dairy.",
     price: 13,
     image: oatmeal,
-    stripePriceId: "price_1TdaLyRRYxXC5vq1Zsd0nkla",
+    stripePriceId: "price_1TqiNIEo5sZAosNRcfBOtu1R",
   },
   {
     slug: "snickerdoodle",
@@ -76,7 +76,7 @@ export const cookies: Cookie[] = [
     allergens: "Contains: wheat, eggs, dairy, soy, and honey.",
     price: 13,
     image: snickerdoodle,
-    stripePriceId: "price_1TdaMLRRYxXC5vq1yWpU1UaN",
+    stripePriceId: "price_1TqiNJEo5sZAosNRiZz6HXwf",
   },
   {
     slug: "peanut-butter",
@@ -89,7 +89,7 @@ export const cookies: Cookie[] = [
     allergens: "Contains: wheat, eggs, dairy, soy. May contain traces of tree nuts.",
     price: 13,
     image: peanutButter,
-    stripePriceId: "price_1TdaMhRRYxXC5vq1RUanF7xI",
+    stripePriceId: "price_1TqiNHEo5sZAosNRB0ligonF",
   },
   {
     slug: "double-chocolate",
@@ -103,6 +103,6 @@ export const cookies: Cookie[] = [
     price: 13,
     image: chocolateChip,
     badge: "Bestseller",
-    stripePriceId: "price_1TdaN4RRYxXC5vq1x2Raiiyu",
+    stripePriceId: "price_1TqiNIEo5sZAosNRimP9Xjlk",
   },
 ];
