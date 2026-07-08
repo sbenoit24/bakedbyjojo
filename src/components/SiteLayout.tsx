@@ -7,7 +7,7 @@ const nav = [
   { to: "/", label: "Home" },
   { to: "/cookies", label: "Cookies" },
   { to: "/about", label: "About" },
-  { to: "/contact", label: "Order" },
+  { to: "/contact", label: "Contact" },
 ] as const;
 
 export function SiteHeader() {
@@ -64,6 +64,8 @@ export function SiteFooter() {
             Statewide Shipping
             <br />
             Local Pickup:
+            <br />
+            74 Munson St, Port Chester, NY 10573
             <br />
             Mon–Fri 5pm–8pm & Sat–Sun 1pm–7pm
           </p>

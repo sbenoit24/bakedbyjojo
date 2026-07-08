@@ -38,6 +38,9 @@ function SuccessPage() {
         Your payment was received and Joann has been notified. You'll get a confirmation email from
         Stripe with your receipt, and we'll be in touch about pickup or shipping.
       </p>
+      <p className="mt-3 text-sm text-muted-foreground">
+        Local pickup is at 74 Munson St, Port Chester, NY 10573.
+      </p>
       {session_id && (
         <p className="mt-3 text-xs text-muted-foreground">
           Confirmation reference: <span className="font-mono">{session_id}</span>

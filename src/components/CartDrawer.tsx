@@ -310,6 +310,9 @@ export function CartDrawer() {
                   <p className="text-xs font-semibold uppercase tracking-wider text-accent">
                     Pick a pickup time
                   </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Pick up at 74 Munson St, Port Chester, NY 10573
+                  </p>
                   <Calendar
                     mode="single"
                     selected={pickupDate}
@@ -370,7 +373,7 @@ export function CartDrawer() {
                 onClick={() => setOpen(false)}
                 className="mt-2 block text-center text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
-                Prefer local pickup? Place an order →
+                Questions? Contact Joann →
               </Link>
             </div>
           </>
