@@ -37,7 +37,7 @@ export const cookies: Cookie[] = [
     price: 13,
     image: doubleChocolate,
     badge: "Fan favorite",
-    stripePriceId: "price_1TqiNIEo5sZAosNR4VAUfzrp",
+    stripePriceId: "price_1TsUesEo5sZAosNRY8D6OAb9",
   },
   {
     slug: "frosted-sugar",
@@ -63,7 +63,7 @@ export const cookies: Cookie[] = [
     allergens: "Contains: wheat, eggs, dairy.",
     price: 13,
     image: oatmeal,
-    stripePriceId: "price_1TqiNIEo5sZAosNRcfBOtu1R",
+    stripePriceId: "price_1TsUfREo5sZAosNRGPOQDvoe",
   },
   {
     slug: "snickerdoodle",
@@ -76,7 +76,7 @@ export const cookies: Cookie[] = [
     allergens: "Contains: wheat, eggs, dairy, soy, and honey.",
     price: 13,
     image: snickerdoodle,
-    stripePriceId: "price_1TqiNJEo5sZAosNRiZz6HXwf",
+    stripePriceId: "price_1TsUe5Eo5sZAosNRP122lvkh",
   },
   {
     slug: "peanut-butter",
@@ -89,7 +89,7 @@ export const cookies: Cookie[] = [
     allergens: "Contains: wheat, eggs, dairy, soy. May contain traces of tree nuts.",
     price: 13,
     image: peanutButter,
-    stripePriceId: "price_1TqiNHEo5sZAosNRB0ligonF",
+    stripePriceId: "price_1TsUguEo5sZAosNR22tu1l2s",
   },
   {
     slug: "double-chocolate",
@@ -103,6 +103,6 @@ export const cookies: Cookie[] = [
     price: 13,
     image: chocolateChip,
     badge: "Bestseller",
-    stripePriceId: "price_1TqiNIEo5sZAosNRimP9Xjlk",
+    stripePriceId: "price_1TsUgMEo5sZAosNR68KQJR5i",
   },
 ];
