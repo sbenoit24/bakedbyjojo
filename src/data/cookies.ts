@@ -143,7 +143,7 @@ export const cookies: Cookie[] = [
         label: "Mini — 1 dozen",
         count: 12,
         price: 14,
-        stripePriceId: "price_1TsUu5Eo5sZAosNRyeaGDWk2",
+        stripePriceId: "price_1TsVLvEo5sZAosNR3H5ptHM6",
       },
     ],
   },
