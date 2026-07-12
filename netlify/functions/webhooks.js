@@ -101,12 +101,21 @@ export const handler = async (event) => {
       .join("\n");
 
   const lineItems = session.line_items?.data || [];
-  const itemLines = lineItems.map((li) => ({
-    name: li.price?.product?.name || li.description || "Item",
-    quantity: li.quantity,
-    unit: li.price?.unit_amount ?? 0,
-    lineTotal: li.amount_total,
-  }));
+  const itemLines = lineItems.map((li) => {
+    // A single Stripe Product ("Black & White") can hold multiple Prices (Large,
+    // Mini), which would otherwise render identically in this email. Distinguish
+    // them by the Price nickname (set one per variant Price in Stripe, e.g.
+    // "Large" / "Mini"); if there's no nickname, fall back to the last 8 chars of
+    // the price ID so the two lines are still visibly different.
+    const baseName = li.price?.product?.name || li.description || "Item";
+    const tag = li.price?.nickname || (li.price?.id ? li.price.id.slice(-8) : "");
+    return {
+      name: tag ? `${baseName} (${tag})` : baseName,
+      quantity: li.quantity,
+      unit: li.price?.unit_amount ?? 0,
+      lineTotal: li.amount_total,
+    };
+  });
 
   const orderTotal = session.amount_total ?? 0;
 

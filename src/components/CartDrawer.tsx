@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Loader2, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { cookies as cookieData } from "@/data/cookies";
-import { useCart, type CartItems } from "@/hooks/use-cart";
+import { useCart, parseCartKey, type CartItems } from "@/hooks/use-cart";
 import { cartToLineItems, startCheckout, type Fulfillment } from "@/lib/checkout";
 import { CLOSED_DATES } from "@/data/closed-dates";
 import { PICKUP_WINDOW_DAYS, parseLocalDate, slotsForDay, toISOWithOffset } from "@/lib/pickup";
@@ -16,18 +16,43 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-type OrderLine = (typeof cookieData)[number] & { dozens: number };
+type OrderLine = (typeof cookieData)[number] & {
+  dozens: number;
+  key: string; // composite cart key (slug or slug:variantId)
+  variantId?: string;
+  variantLabel?: string;
+  unitPrice: number; // variant price if present, else the cookie's top-level price
+};
 
-// Turn a slug -> dozens map into display rows joined to the cookie catalogue.
+// Turn a cart map (keyed by slug or slug:variantId) into display rows joined to
+// the cookie catalogue, resolving each line's variant, label and unit price.
 const toLines = (items: CartItems): OrderLine[] =>
-  cookieData.filter((c) => (items[c.slug] ?? 0) > 0).map((c) => ({ ...c, dozens: items[c.slug] }));
+  Object.entries(items)
+    .filter(([, dozens]) => dozens > 0)
+    .map(([key, dozens]): OrderLine | null => {
+      const { slug, variantId } = parseCartKey(key);
+      const cookie = cookieData.find((c) => c.slug === slug);
+      if (!cookie) return null;
+      const variant = variantId ? cookie.variants?.find((v) => v.id === variantId) : undefined;
+      return {
+        ...cookie,
+        dozens,
+        key,
+        variantId,
+        variantLabel: variant?.label,
+        unitPrice: variant?.price ?? cookie.price,
+      };
+    })
+    .filter((l): l is OrderLine => l !== null);
 
 function QtyStepper({
   dozens,
+  unit = "dz",
   onDecrement,
   onIncrement,
 }: {
   dozens: number;
+  unit?: string;
   onDecrement: () => void;
   onIncrement: () => void;
 }) {
@@ -42,7 +67,7 @@ function QtyStepper({
         <Minus className="h-3.5 w-3.5" />
       </button>
       <span className="min-w-[2.5rem] text-center text-sm font-semibold text-foreground">
-        {dozens} dz
+        {dozens} {unit}
       </span>
       <button
         type="button"
@@ -105,8 +130,8 @@ export function CartDrawer() {
   const hasOrder = cookieLines.length > 0 || platterGroups.length > 0;
 
   const subtotal =
-    cookieLines.reduce((sum, c) => sum + c.price * c.dozens, 0) +
-    platterGroups.reduce((sum, g) => sum + g.lines.reduce((s, c) => s + c.price * c.dozens, 0), 0);
+    cookieLines.reduce((sum, c) => sum + c.unitPrice * c.dozens, 0) +
+    platterGroups.reduce((sum, g) => sum + g.lines.reduce((s, c) => s + c.unitPrice * c.dozens, 0), 0);
 
   const handleCheckout = async () => {
     const items = cartToLineItems(cookieItems, platters);
@@ -177,7 +202,7 @@ export function CartDrawer() {
                     Cookies by the dozen
                   </h3>
                   {cookieLines.map((c) => (
-                    <div key={c.slug} className="flex items-center gap-3">
+                    <div key={c.key} className="flex items-center gap-3">
                       <img
                         src={c.image}
                         alt=""
@@ -185,18 +210,22 @@ export function CartDrawer() {
                       />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-foreground">{c.name}</p>
+                        {c.variantLabel && (
+                          <p className="truncate text-xs text-accent">{c.variantLabel}</p>
+                        )}
                         <p className="text-xs text-muted-foreground">
-                          ${c.price} / dozen · ${c.price * c.dozens}
+                          ${c.unitPrice} / {c.variantId ? "box" : "dozen"} · ${c.unitPrice * c.dozens}
                         </p>
                         <div className="mt-1.5 flex items-center gap-2">
                           <QtyStepper
                             dozens={c.dozens}
-                            onDecrement={() => setDozens(c.slug, c.dozens - 1)}
-                            onIncrement={() => addDozen(c.slug)}
+                            unit={c.variantId ? "box" : "dz"}
+                            onDecrement={() => setDozens(c.slug, c.dozens - 1, c.variantId)}
+                            onIncrement={() => addDozen(c.slug, c.variantId)}
                           />
                           <button
                             type="button"
-                            onClick={() => removeItem(c.slug)}
+                            onClick={() => removeItem(c.slug, c.variantId)}
                             aria-label={`Remove ${c.name}`}
                             className="p-1.5 text-muted-foreground hover:text-destructive transition-colors"
                           >
@@ -224,7 +253,7 @@ export function CartDrawer() {
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-foreground">{c.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          ${c.price} / dozen · ${c.price * c.dozens}
+                          ${c.unitPrice} / dozen · ${c.unitPrice * c.dozens}
                         </p>
                         <div className="mt-1.5 flex items-center gap-2">
                           <QtyStepper

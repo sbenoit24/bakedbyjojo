@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { Check, Plus, Trash2, X } from "lucide-react";
 import { cookies, type Cookie } from "@/data/cookies";
-import { useCart } from "@/hooks/use-cart";
+import { useCart, cartKey } from "@/hooks/use-cart";
 
 export const Route = createFileRoute("/cookies")({
   head: () => ({
@@ -57,10 +57,23 @@ function CookiesPage() {
 function CookieCard({ cookie: c }: { cookie: Cookie }) {
   const { addDozen, cookieItems } = useCart();
   const [justAdded, setJustAdded] = useState(false);
-  const dozensOrdered = cookieItems[c.slug] ?? 0;
+  // Variant selection is client-only state; it initialises to null identically
+  // on server and first client render, so no variant is preselected (SSR-safe).
+  const hasVariants = !!c.variants?.length;
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const activeKey = hasVariants
+    ? selectedVariantId
+      ? cartKey(c.slug, selectedVariantId)
+      : null
+    : c.slug;
+  const dozensOrdered = activeKey ? cookieItems[activeKey] ?? 0 : 0;
+  const prices = c.variants?.map((v) => v.price) ?? [];
+  const minPrice = prices.length ? Math.min(...prices) : c.price;
+  const maxPrice = prices.length ? Math.max(...prices) : c.price;
 
   const handleAdd = () => {
-    addDozen(c.slug);
+    if (hasVariants && !selectedVariantId) return;
+    addDozen(c.slug, selectedVariantId ?? undefined);
     setJustAdded(true);
     window.setTimeout(() => setJustAdded(false), 1500);
   };
@@ -85,7 +98,9 @@ function CookieCard({ cookie: c }: { cookie: Cookie }) {
       <div className="p-6 flex flex-col flex-1">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="font-display text-2xl font-semibold text-primary">{c.name}</h2>
-          <span className="font-semibold text-foreground">${c.price}</span>
+          <span className="font-semibold text-foreground">
+            {hasVariants && minPrice !== maxPrice ? `$${minPrice}–${maxPrice}` : `$${c.price}`}
+          </span>
         </div>
         <p className="mt-1 text-sm italic text-accent">{c.tagline}</p>
         <div className="mt-4 space-y-2">
@@ -95,18 +110,41 @@ function CookieCard({ cookie: c }: { cookie: Cookie }) {
           </div>
           <p className="text-xs font-medium text-foreground leading-relaxed">{c.allergens}</p>
         </div>
+        {hasVariants && (
+          <div className="mt-4 grid gap-2" role="group" aria-label={`Choose a size for ${c.name}`}>
+            {c.variants!.map((v) => (
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => setSelectedVariantId(v.id)}
+                aria-pressed={selectedVariantId === v.id}
+                className={`rounded-xl border px-4 py-2.5 text-left transition-colors ${
+                  selectedVariantId === v.id
+                    ? "border-accent bg-secondary text-primary"
+                    : "border-border text-foreground hover:bg-secondary"
+                }`}
+              >
+                <span className="block text-sm font-semibold">{v.label}</span>
+                <span className="block text-xs text-muted-foreground">${v.price} / box</span>
+              </button>
+            ))}
+          </div>
+        )}
         <div className="mt-auto flex items-end justify-between gap-3 pt-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Per dozen</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">
+            {hasVariants ? "Per box" : "Per dozen"}
+          </p>
           <div className="flex items-center gap-2">
             {dozensOrdered > 0 && (
               <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
-                {dozensOrdered} dz in cart
+                {dozensOrdered} {hasVariants ? "in cart" : "dz in cart"}
               </span>
             )}
             <button
               type="button"
               onClick={handleAdd}
-              className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground shadow-warm hover:translate-y-[-1px] transition-all"
+              disabled={hasVariants && !selectedVariantId}
+              className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground shadow-warm hover:translate-y-[-1px] transition-all disabled:opacity-50 disabled:hover:translate-y-0"
             >
               {justAdded ? (
                 <>
@@ -114,7 +152,7 @@ function CookieCard({ cookie: c }: { cookie: Cookie }) {
                 </>
               ) : (
                 <>
-                  <Plus className="h-3.5 w-3.5" /> Add a Dozen
+                  <Plus className="h-3.5 w-3.5" /> {hasVariants ? "Add to cart" : "Add a Dozen"}
                 </>
               )}
             </button>

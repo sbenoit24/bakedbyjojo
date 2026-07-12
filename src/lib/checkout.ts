@@ -1,5 +1,5 @@
 import { cookies as cookieData } from "@/data/cookies";
-import type { CartItems } from "@/hooks/use-cart";
+import { parseCartKey, type CartItems } from "@/hooks/use-cart";
 
 // The Stripe publishable key is safe to ship in the client bundle. We mainly use
 // it as a signal of whether Stripe Checkout has been configured for this build —
@@ -20,24 +20,31 @@ export type Fulfillment = "pickup" | "shipping";
 // quantity is simply the total dozens of that cookie across the order. We send
 // only the Stripe price ID and a quantity, never a price.
 export function cartToLineItems(cookieItems: CartItems, platters: CartItems[]): LineItem[] {
-  const dozensBySlug: Record<string, number> = {};
+  // Accumulate box counts per cart key (slug or slug:variantId).
+  const boxesByKey: Record<string, number> = {};
   const accumulate = (items: CartItems) => {
-    for (const [slug, dozens] of Object.entries(items)) {
-      if (dozens > 0) dozensBySlug[slug] = (dozensBySlug[slug] ?? 0) + dozens;
+    for (const [key, boxes] of Object.entries(items)) {
+      if (boxes > 0) boxesByKey[key] = (boxesByKey[key] ?? 0) + boxes;
     }
   };
   accumulate(cookieItems);
   platters.forEach(accumulate);
 
   const bySlug = new Map(cookieData.map((c) => [c.slug, c]));
-  const lineItems: LineItem[] = [];
-  for (const [slug, quantity] of Object.entries(dozensBySlug)) {
+  // Resolve each key to its Stripe price ID — the selected variant's ID when a
+  // variant is chosen, otherwise the cookie's top-level fallback. Merge by price
+  // ID (e.g. an à-la-carte Mini and a platter's plain Black & White both map to
+  // the Mini price) since Stripe rejects duplicate prices in one Checkout.
+  const qtyByPrice = new Map<string, number>();
+  for (const [key, quantity] of Object.entries(boxesByKey)) {
+    const { slug, variantId } = parseCartKey(key);
     const cookie = bySlug.get(slug);
-    if (cookie?.stripePriceId) {
-      lineItems.push({ priceId: cookie.stripePriceId, quantity });
-    }
+    if (!cookie) continue;
+    const variant = variantId ? cookie.variants?.find((v) => v.id === variantId) : undefined;
+    const priceId = variant?.stripePriceId ?? cookie.stripePriceId;
+    if (priceId) qtyByPrice.set(priceId, (qtyByPrice.get(priceId) ?? 0) + quantity);
   }
-  return lineItems;
+  return [...qtyByPrice].map(([priceId, quantity]) => ({ priceId, quantity }));
 }
 
 // Call the Netlify function to create a Checkout Session, then hand the browser

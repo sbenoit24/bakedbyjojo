@@ -97,10 +97,12 @@ export const handler = async (event) => {
   const stripe = new Stripe(secretKey);
   const origin = resolveOrigin(event);
 
-  // Each line item is one dozen cookies. NY-only USPS rate scales with dozens:
-  // $6 for the first dozen, +$1 per additional dozen.
-  const totalQuantity = lineItems.reduce((sum, li) => sum + li.quantity, 0);
-  const shippingCents = 600 + (totalQuantity - 1) * 100;
+  // Each unit of line-item quantity is one BOX of cookies, regardless of whether
+  // that box holds 6 (Large) or 12 (Mini/dozen). NY-only USPS rate scales per
+  // box: $6 for the first box, +$1 per additional box (so 1 box = $6, 2 = $7,
+  // 5 = $10). items.length >= 1 is already guaranteed above, so totalBoxes >= 1.
+  const totalBoxes = lineItems.reduce((sum, li) => sum + li.quantity, 0);
+  const shippingCents = 600 + (totalBoxes - 1) * 100;
 
   const sessionConfig = {
     mode: "payment",

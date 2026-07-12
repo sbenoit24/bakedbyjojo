@@ -23,6 +23,18 @@ export type Cookie = {
   // and paste its `price_…` ID here. Until these are real IDs, Checkout will
   // return an error from Stripe.
   stripePriceId: string;
+  // Optional size/quantity variants. When present, the UI must use the SELECTED
+  // variant's price and stripePriceId; the top-level `price`/`stripePriceId`
+  // above become fallbacks for any code path that hasn't been variant-updated.
+  variants?: CookieVariant[];
+};
+
+export type CookieVariant = {
+  id: string; // stable, slug-safe id like "large" or "mini"
+  label: string; // human-readable, e.g. "Large — 6 cookies"
+  count: number; // number of cookies in the box (6 or 12)
+  price: number; // display price in whole dollars
+  stripePriceId: string; // Stripe live Price ID for this variant
 };
 
 export const cookies: Cookie[] = [
@@ -108,7 +120,7 @@ export const cookies: Cookie[] = [
   },
   {
     slug: "black-and-white",
-    name: "Brooklyn Black & White",
+    name: "Black & White",
     tagline: "Two frostings, one iconic cookie",
     description:
       "A soft, cakey buttermilk cookie dipped half in vanilla, half in Dutch-cocoa fudge glaze. A deli-counter classic.",
@@ -118,5 +130,21 @@ export const cookies: Cookie[] = [
     price: 14,
     image: blackAndWhite,
     stripePriceId: "price_1TsUu5Eo5sZAosNRyeaGDWk2",
+    variants: [
+      {
+        id: "large",
+        label: "Large — 6 cookies",
+        count: 6,
+        price: 12,
+        stripePriceId: "price_LARGE_BLACK_AND_WHITE_TODO",
+      },
+      {
+        id: "mini",
+        label: "Mini — 1 dozen",
+        count: 12,
+        price: 14,
+        stripePriceId: "price_1TsUu5Eo5sZAosNRyeaGDWk2",
+      },
+    ],
   },
 ];

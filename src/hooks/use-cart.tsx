@@ -2,8 +2,22 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const STORAGE_KEY = "bakedbyjojo-cart";
 
-// slug -> number of dozens ordered
+// Cart key -> number of boxes ordered. The key is the cookie slug on its own,
+// or `slug:variantId` for a cookie ordered in a specific size variant. Slugs
+// never contain a colon, so it's an unambiguous separator.
 export type CartItems = Record<string, number>;
+
+// Build/parse the composite cart key. A cookie with no chosen variant keys on
+// its bare slug (unchanged from before variants existed).
+export const cartKey = (slug: string, variantId?: string) =>
+  variantId ? `${slug}:${variantId}` : slug;
+
+export const parseCartKey = (key: string): { slug: string; variantId?: string } => {
+  const i = key.indexOf(":");
+  return i === -1
+    ? { slug: key }
+    : { slug: key.slice(0, i), variantId: key.slice(i + 1) };
+};
 
 // The cart keeps à-la-carte cookie dozens separate from platter orders so the
 // order page can show them as distinct kinds of order. Each platter is its own
@@ -19,9 +33,9 @@ type CartContextValue = {
   cookieItems: CartItems;
   platters: CartItems[];
   // À-la-carte cookie order
-  addDozen: (slug: string) => void;
-  setDozens: (slug: string, dozens: number) => void;
-  removeItem: (slug: string) => void;
+  addDozen: (slug: string, variantId?: string) => void;
+  setDozens: (slug: string, dozens: number, variantId?: string) => void;
+  removeItem: (slug: string, variantId?: string) => void;
   // Platter orders — each platter is addressed by its index in `platters`.
   addPlatter: (rows: CartItems) => void;
   setPlatterDozens: (index: number, slug: string, dozens: number) => void;
@@ -87,14 +101,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state]);
 
-  const addDozen = (slug: string) =>
-    setState((prev) => ({ ...prev, cookies: adjust(prev.cookies, slug, (prev.cookies[slug] ?? 0) + 1) }));
+  const addDozen = (slug: string, variantId?: string) =>
+    setState((prev) => {
+      const key = cartKey(slug, variantId);
+      return { ...prev, cookies: adjust(prev.cookies, key, (prev.cookies[key] ?? 0) + 1) };
+    });
 
-  const setDozens = (slug: string, dozens: number) =>
-    setState((prev) => ({ ...prev, cookies: adjust(prev.cookies, slug, dozens) }));
+  const setDozens = (slug: string, dozens: number, variantId?: string) =>
+    setState((prev) => ({ ...prev, cookies: adjust(prev.cookies, cartKey(slug, variantId), dozens) }));
 
-  const removeItem = (slug: string) =>
-    setState((prev) => ({ ...prev, cookies: adjust(prev.cookies, slug, 0) }));
+  const removeItem = (slug: string, variantId?: string) =>
+    setState((prev) => ({ ...prev, cookies: adjust(prev.cookies, cartKey(slug, variantId), 0) }));
 
   // Append the built rows as a brand-new platter (so each "Add platter" is
   // kept as its own order rather than merged into one).
