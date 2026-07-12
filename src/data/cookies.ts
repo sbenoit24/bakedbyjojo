@@ -35,7 +35,7 @@ export const cookies: Cookie[] = [
     ingredients:
       "Sugar, wheat flour, cocoa powder, semi-sweet, bittersweet, peanut butter & milk chocolate chips, butter, whole milk, eggs, vanilla extract, baking soda, and a pinch of salt.",
     allergens: "Contains: wheat, dairy, eggs, soy, and peanuts. May contain tree nuts.",
-    price: 13,
+    price: 14,
     image: doubleChocolate,
     badge: "Fan favorite",
     stripePriceId: "price_1TsUesEo5sZAosNRY8D6OAb9",
@@ -49,7 +49,7 @@ export const cookies: Cookie[] = [
     ingredients:
       "Cookie: flour, sugar, whole milk, eggs, baking powder, vegetable oil, almond extract. Glaze: powdered sugar, almond extract, water, sprinkles.",
     allergens: "Contains: wheat/gluten, dairy, eggs, and tree nuts (almonds).",
-    price: 13,
+    price: 14,
     image: sugar,
     stripePriceId: "price_1TsUbTEo5sZAosNRXllG40sU",
   },
@@ -62,7 +62,7 @@ export const cookies: Cookie[] = [
     ingredients:
       "Butter, granulated sugar, brown sugar, eggs, vanilla extract, flour, baking soda, oatmeal, raisins, cinnamon.",
     allergens: "Contains: wheat, eggs, dairy.",
-    price: 13,
+    price: 14,
     image: oatmeal,
     stripePriceId: "price_1TsUfREo5sZAosNRGPOQDvoe",
   },
@@ -75,7 +75,7 @@ export const cookies: Cookie[] = [
     ingredients:
       "Butter, sugar, honey, brown sugar, eggs, vanilla extract, flour, baking soda, cinnamon, graham cracker crumbs, semi-sweet chocolate chips.",
     allergens: "Contains: wheat, eggs, dairy, soy, and honey.",
-    price: 13,
+    price: 14,
     image: snickerdoodle,
     stripePriceId: "price_1TsUe5Eo5sZAosNRP122lvkh",
   },
@@ -88,7 +88,7 @@ export const cookies: Cookie[] = [
     ingredients:
       "Butter, sugar, dark brown sugar, eggs, vanilla extract, peppermint extract, flour, cocoa powder, baking soda, espresso powder, semi-sweet chocolate chips, crushed peppermint candies.",
     allergens: "Contains: wheat, eggs, dairy, soy. May contain traces of tree nuts.",
-    price: 13,
+    price: 14,
     image: peanutButter,
     stripePriceId: "price_1TsUguEo5sZAosNR22tu1l2s",
   },
@@ -101,7 +101,7 @@ export const cookies: Cookie[] = [
     ingredients:
       "Butter, Nutella, sugar, brown sugar, eggs, vanilla extract, flour, baking soda, hazelnuts, semi-sweet chocolate chips.",
     allergens: "Contains: tree nuts (hazelnuts), wheat, eggs, dairy, soy.",
-    price: 13,
+    price: 14,
     image: chocolateChip,
     badge: "Bestseller",
     stripePriceId: "price_1TsUgMEo5sZAosNR68KQJR5i",
@@ -115,8 +115,8 @@ export const cookies: Cookie[] = [
     ingredients:
       "Cookie: flour, sugar, unsalted butter, buttermilk, egg, vanilla extract, baking soda, salt. Glaze: powdered sugar, unsweetened Dutch-processed cocoa powder, light corn syrup, lemon juice, vanilla, water.",
     allergens: "Contains: wheat/gluten, dairy, and eggs.",
-    price: 13,
+    price: 14,
     image: blackAndWhite,
-    stripePriceId: "price_black_and_white_REPLACE_ME",
+    stripePriceId: "price_1TsUu5Eo5sZAosNRyeaGDWk2",
   },
 ];
