@@ -50,7 +50,7 @@ export const cookies: Cookie[] = [
     allergens: "Contains: wheat/gluten, dairy, eggs, and tree nuts (almonds).",
     price: 13,
     image: sugar,
-    stripePriceId: "price_1TqiNNEo5sZAosNRZbjg8VBz",
+    stripePriceId: "price_1TsUbTEo5sZAosNRXllG40sU",
   },
   {
     slug: "oatmeal-raisin",
