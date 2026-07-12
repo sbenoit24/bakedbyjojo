@@ -136,7 +136,7 @@ export const cookies: Cookie[] = [
         label: "Large — 6 cookies",
         count: 6,
         price: 12,
-        stripePriceId: "price_LARGE_BLACK_AND_WHITE_TODO",
+        stripePriceId: "price_1TsUu5Eo5sZAosNRyeaGDWk2",
       },
       {
         id: "mini",
