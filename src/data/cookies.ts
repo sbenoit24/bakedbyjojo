@@ -4,6 +4,7 @@ import oatmeal from "@/assets/oatmealraisin.webp";
 import snickerdoodle from "@/assets/graham.webp";
 import peanutButter from "@/assets/mintymocha.webp";
 import doubleChocolate from "@/assets/figgies.webp";
+import blackAndWhite from "@/assets/blackandwhite.png";
 
 export type Cookie = {
   slug: string;
@@ -104,5 +105,18 @@ export const cookies: Cookie[] = [
     image: chocolateChip,
     badge: "Bestseller",
     stripePriceId: "price_1TsUgMEo5sZAosNR68KQJR5i",
+  },
+  {
+    slug: "black-and-white",
+    name: "Brooklyn Black & White",
+    tagline: "Two frostings, one iconic cookie",
+    description:
+      "A soft, cakey buttermilk cookie dipped half in vanilla, half in Dutch-cocoa fudge glaze. A deli-counter classic.",
+    ingredients:
+      "Cookie: flour, sugar, unsalted butter, buttermilk, egg, vanilla extract, baking soda, salt. Glaze: powdered sugar, unsweetened Dutch-processed cocoa powder, light corn syrup, lemon juice, vanilla, water.",
+    allergens: "Contains: wheat/gluten, dairy, and eggs.",
+    price: 13,
+    image: blackAndWhite,
+    stripePriceId: "price_black_and_white_REPLACE_ME",
   },
 ];

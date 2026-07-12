@@ -29,9 +29,14 @@ function CookiesPage() {
         </p>
       </header>
 
-      <div className="mt-14 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-14 flex flex-wrap justify-center gap-8">
         {cookies.map((c) => (
-          <CookieCard key={c.slug} cookie={c} />
+          <div
+            key={c.slug}
+            className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.334rem)]"
+          >
+            <CookieCard cookie={c} />
+          </div>
         ))}
       </div>
 
@@ -61,7 +66,7 @@ function CookieCard({ cookie: c }: { cookie: Cookie }) {
   };
 
   return (
-    <article className="rounded-3xl bg-card overflow-hidden shadow-soft hover:shadow-warm transition-shadow group flex flex-col">
+    <article className="h-full rounded-3xl bg-card overflow-hidden shadow-soft hover:shadow-warm transition-shadow group flex flex-col">
       <div className="aspect-[4/3] overflow-hidden relative bg-muted">
         <img
           src={c.image}
