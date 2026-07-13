@@ -5,6 +5,7 @@ import snickerdoodle from "@/assets/graham.webp";
 import peanutButter from "@/assets/mintymocha.webp";
 import doubleChocolate from "@/assets/figgies.webp";
 import blackAndWhite from "@/assets/blackandwhite.png";
+import classicSnickerdoodle from "@/assets/snickerdoodles.png";
 
 export type Cookie = {
   slug: string;
@@ -146,5 +147,18 @@ export const cookies: Cookie[] = [
         stripePriceId: "price_1TsVLvEo5sZAosNR3H5ptHM6",
       },
     ],
+  },
+  {
+    slug: "classic-snickerdoodle",
+    name: "Snickerdoodle",
+    tagline: "A cinnamon-sugar classic",
+    description:
+      "Soft, buttery, and rolled in cinnamon sugar with a tangy hint of cream of tartar. The timeless snickerdoodle.",
+    ingredients:
+      "Butter, granulated sugar, brown sugar, eggs, vanilla extract, flour, baking soda, cream of tartar, cinnamon.",
+    allergens: "Contains: wheat, eggs, dairy.",
+    price: 14,
+    image: classicSnickerdoodle,
+    stripePriceId: "price_REPLACE_WITH_SNICKERDOODLE_ID",
   },
 ];
