@@ -49,14 +49,22 @@ function CookiesPage() {
       </section>
 
       <div className="mt-14 flex flex-wrap justify-center gap-8">
-        {cookies.map((c) => (
-          <div
-            key={c.slug}
-            className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.334rem)]"
-          >
-            <CookieCard cookie={c} />
-          </div>
-        ))}
+        {cookies.map((c) => {
+          // The Snickerdoodle has no size variants, so next to the taller
+          // Black & White card it would stretch to match and open up dead
+          // space. Let it size to its own content instead of its row-mate.
+          const noStretch = c.slug === "classic-snickerdoodle";
+          return (
+            <div
+              key={c.slug}
+              className={`w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.334rem)]${
+                noStretch ? " self-start" : ""
+              }`}
+            >
+              <CookieCard cookie={c} />
+            </div>
+          );
+        })}
       </div>
 
       <div className="mt-16 text-center">

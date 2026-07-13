@@ -159,6 +159,6 @@ export const cookies: Cookie[] = [
     allergens: "Contains: wheat, eggs, dairy.",
     price: 14,
     image: classicSnickerdoodle,
-    stripePriceId: "price_REPLACE_WITH_SNICKERDOODLE_ID",
+    stripePriceId: "price_1TsoXVEo5sZAosNRtwHMfw1D",
   },
 ];
