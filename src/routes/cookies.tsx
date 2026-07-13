@@ -29,6 +29,25 @@ function CookiesPage() {
         </p>
       </header>
 
+      <section className="mx-auto max-w-4xl px-6 py-12 md:py-16">
+        <h2 className="font-display text-3xl md:text-4xl font-semibold text-primary text-center">
+          From Joann's kitchen
+        </h2>
+        <p className="text-muted-foreground text-center mt-3 mb-8">
+          A quick look at what goes into every batch.
+        </p>
+        <video
+          controls
+          preload="metadata"
+          poster="/videos/cookies-poster.jpg"
+          playsInline
+          className="w-full rounded-3xl shadow-warm"
+        >
+          <source src="/videos/cookies-video.mp4" type="video/mp4" />
+          Your browser doesn't support embedded video.
+        </video>
+      </section>
+
       <div className="mt-14 flex flex-wrap justify-center gap-8">
         {cookies.map((c) => (
           <div
