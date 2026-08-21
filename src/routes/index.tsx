@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import heroImage from "@/assets/hero-cookies.webp";
+import heroImage from "@/assets/theme.jpeg";
 import { cookies } from "@/data/cookies";
 import { ArrowRight, Heart, Truck, Sparkles } from "lucide-react";
 
@@ -54,9 +54,9 @@ function HomePage() {
             <img
               src={heroImage}
               alt="Assortment of homemade cookies on parchment paper"
-              width={1536}
-              height={1024}
-              className="relative rounded-[2rem] shadow-warm w-full h-auto object-cover aspect-[4/3]"
+              width={1179}
+              height={1570}
+              className="relative rounded-[2rem] shadow-warm w-full h-auto object-cover aspect-[3/4]"
             />
           </div>
         </div>

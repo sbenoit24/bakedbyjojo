@@ -6,6 +6,8 @@ import peanutButter from "@/assets/mintymocha.webp";
 import doubleChocolate from "@/assets/figgies.webp";
 import blackAndWhite from "@/assets/blackandwhite.png";
 import classicSnickerdoodle from "@/assets/snickerdoodles.png";
+import brownies from "@/assets/brownies.webp";
+import chocolateChipCookie from "@/assets/chocochips.png";
 
 export type Cookie = {
   slug: string;
@@ -17,6 +19,9 @@ export type Cookie = {
   price: number;
   image: string;
   badge?: string;
+  // When true, this cookie can't be shipped — the card flags it as available for
+  // local pickup only.
+  pickupOnly?: boolean;
   // Stripe Price ID (one dozen) used by Stripe Checkout. The real price lives in
   // Stripe — the cart only ever sends this ID + a quantity, never a dollar
   // amount, so a customer can't tamper with what they're charged. Create one
@@ -39,6 +44,19 @@ export type CookieVariant = {
 };
 
 export const cookies: Cookie[] = [
+  {
+    slug: "chocolate-chip",
+    name: "Chocolate Chip",
+    tagline: "The timeless classic",
+    description:
+      "Soft, buttery, and loaded with chocolate chips. The cookie everyone reaches for first.",
+    // TODO: ingredients coming from Joann — placeholder until provided.
+    ingredients: "Ingredients coming soon.",
+    allergens: "Contains: wheat, eggs, dairy.",
+    price: 14,
+    image: chocolateChipCookie,
+    stripePriceId: "price_1U6hwtEo5sZAosNRCxUE4egf",
+  },
   {
     slug: "classic-chocolate-chip",
     name: "Figgie's Favorites (Brownie P.B. Chip)",
@@ -130,6 +148,7 @@ export const cookies: Cookie[] = [
     allergens: "Contains: wheat/gluten, dairy, and eggs.",
     price: 14,
     image: blackAndWhite,
+    pickupOnly: true,
     stripePriceId: "price_1TsUu5Eo5sZAosNRyeaGDWk2",
     variants: [
       {
@@ -160,5 +179,20 @@ export const cookies: Cookie[] = [
     price: 14,
     image: classicSnickerdoodle,
     stripePriceId: "price_1TsoXVEo5sZAosNRtwHMfw1D",
+  },
+  {
+    slug: "brownies",
+    name: "Triple Chocolate Brownie",
+    tagline: "Three chocolates, one fudgy square",
+    description:
+      "Cocoa-rich batter studded with semi-sweet, bittersweet, and milk chocolate chips. Fudgy in the middle with a crackly top — pure indulgence.",
+    ingredients:
+      "Sugar, wheat flour, cocoa powder, butter, whole milk, eggs, vanilla extract, baking soda, a pinch of salt, and semi-sweet, bittersweet, & milk chocolate chips.",
+    allergens:
+      "Contains: wheat, dairy, eggs, soy. May contain tree nuts. Made in a home kitchen that may also process peanuts/tree nuts.",
+    price: 10,
+    image: brownies,
+    pickupOnly: true,
+    stripePriceId: "price_1U6hbDEo5sZAosNR8aYmWN2A",
   },
 ];

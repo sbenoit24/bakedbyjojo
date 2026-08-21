@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
-import { Check, Plus, Trash2, X } from "lucide-react";
+import { Check, MapPin, Plus, Trash2, X } from "lucide-react";
 import { cookies, type Cookie } from "@/data/cookies";
 import { useCart, cartKey } from "@/hooks/use-cart";
 
@@ -130,6 +130,11 @@ function CookieCard({ cookie: c }: { cookie: Cookie }) {
           </span>
         </div>
         <p className="mt-1 text-sm italic text-accent">{c.tagline}</p>
+        {c.pickupOnly && (
+          <span className="mt-3 inline-flex items-center gap-1.5 self-start rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-primary">
+            <MapPin className="h-3.5 w-3.5" /> Local pickup only
+          </span>
+        )}
         <div className="mt-4 space-y-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-primary">Ingredients</p>
