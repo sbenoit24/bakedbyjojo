@@ -50,9 +50,10 @@ export const cookies: Cookie[] = [
     tagline: "The timeless classic",
     description:
       "Soft, buttery, and loaded with chocolate chips. The cookie everyone reaches for first.",
-    // TODO: ingredients coming from Joann — placeholder until provided.
-    ingredients: "Ingredients coming soon.",
-    allergens: "Contains: wheat, eggs, dairy.",
+    ingredients:
+      "Butter, sugar, dark brown sugar, eggs, vanilla extract, flour, cornstarch, baking soda, semi-sweet chocolate chips.",
+    allergens:
+      "Contains: wheat, eggs, dairy, soy. Made in a home kitchen that may also process peanuts/tree nuts.",
     price: 14,
     image: chocolateChipCookie,
     stripePriceId: "price_1U6hwtEo5sZAosNRCxUE4egf",
